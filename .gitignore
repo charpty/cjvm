@@ -3,4 +3,6 @@ cmake-build-debug
 .vscode
 CMakeLists.txt
 test*.c
-**/a.out
+**/a.out.*
+**/*.out
+**/*.dSYM

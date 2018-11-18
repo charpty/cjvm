@@ -17,4 +17,10 @@ brew install libzip
 ## SDS
 > https://github.com/antirez/sds
 
-On Mac: copy the source file into dep/sds
+On Mac: copy the source file "sds.h", "sds.c", "sdsalloc.h" into dep/sds
+
+
+## ADLIST
+> https://github.com/antirez/redis
+
+On Mac: copy the source file "adlist.h", "adlist.c" into dep/adlist

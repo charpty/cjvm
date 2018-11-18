@@ -2,10 +2,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <zip.h>
-#include "../../src/util/log.h"
-#include "../../src/util/files.h"
+#include "../../src/util/log.c"
+#include "../../src/util/files.c"
+#include "../../dep/sds/sds.c"
 
 void printClassHead(char *classStream);
+
+void testReadLibDir(char *libPath, char *classname)
+{
+    printf("%s:%s\n", libPath, classname);
+
+    int size;
+
+    File **files = listDir(libPath, ".jar", &size, 0);
+    printf("size is %d\n", size);
+    for (int i = 0; i < size; i++)
+    {
+        File *f = files[i];
+        printf("jar file: %s \n", f->path);
+    }
+}
 
 void testReadJar(char *jarPath, char *classname)
 {
@@ -65,13 +81,13 @@ void printClassHead(char *classStream)
     printf("%x\n", classStream[1]);
     printf("%x\n", classStream[2]);
     printf("%x\n", classStream[3]);
-
-
 }
 
 int main(int argc, char const *argv[])
 {
-    testReadJar("/Users/charpty/test.jar", "com/ifugle/EdasConfig.class");
-    testReadClassFile("/Users/charpty/Test.class");
+    // testReadJar("/Users/charpty/test.jar", "com/ifugle/EdasConfig.class");
+    // testReadClassFile("/Users/charpty/Test.class");
+
+    testReadLibDir(sdscat(sdsnew(getenv("JAVA_HOME")), "/jre/lib"), "cc");
     return 0;
 }

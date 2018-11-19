@@ -1,54 +1,19 @@
-#define u1 unsigned char
-#define u2 unsigned short
-#define u4 unsigned int
+#include <stdlib.h>
 
-typedef struct cp_info
+typedef struct ClassReader
 {
-    u1 tag;
-    u1 *info;
-} cp_info;
+    int position;
+    unsigned char *data;
+} ClassReader;
 
-typedef struct attribute_info
-{
-    u2 attribute_name_index;
-    u4 attribute_length;
-    u1 *info;
-} attribute_info;
+uint8_t readUint8(ClassReader *r);
 
-typedef struct field_info
-{
-    u2 access_flags;
-    u2 name_index;
-    u2 descriptor_index;
-    u2 attributes_count;
-    attribute_info *attributes;
-} field_info;
+uint16_t readUint16(ClassReader *r);
 
-typedef struct method_info
-{
-    u2 access_flags;
-    u2 name_index;
-    u2 descriptor_index;
-    u2 attributes_count;
-    attribute_info *attributes;
-} method_info;
+uint32_t readUint32(ClassReader *r);
 
-typedef struct ClassFile
-{
-    u4 magic;
-    u2 minor_version;
-    u2 major_version;
-    u2 constant_pool_count;
-    cp_info *constant_pool;
-    u2 access_flags;
-    u2 this_class;
-    u2 super_class;
-    u2 interfaces_count;
-    u2 *interfaces;
-    u2 fields_count;
-    field_info *fields;
-    u2 methods_count;
-    method_info *methods;
-    u2 attributes_count;
-    attribute_info *attributes;
-} ClassFile;
+uint64_t readUint64(ClassReader *r);
+
+uint16_t *readUint16s(ClassReader *r, int *size);
+
+char *readBytes(ClassReader *r, u_int32_t n, int *size);

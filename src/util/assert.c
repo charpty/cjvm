@@ -16,3 +16,17 @@ void assertEquals(char *s, char *d, char *format, ...)
         exit(1);
     }
 }
+
+void assertExpress(int express, char *format, ...)
+{
+    if (!express)
+    {
+        char buf[256] = {0};
+        va_list list;
+        va_start(list, format);
+        vsprintf(buf, format, list);
+        va_end(list);
+        LOG_ERROR("%s", buf);
+        exit(1);
+    }
+}

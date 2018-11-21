@@ -23,7 +23,7 @@ uint64_t readUint64(ClassReader *r)
     return *(uint64_t *)r;
 }
 
-uint16_t *readUint16s(ClassReader *r, int *size)
+uint16_t *readUint16s(ClassReader *r, u_int32_t *size)
 {
     uint16_t len = readUint16(r);
     uint16_t *rs = malloc(len * sizeof(u_int16_t));
@@ -34,10 +34,11 @@ uint16_t *readUint16s(ClassReader *r, int *size)
     return rs;
 }
 
-char *readBytes(ClassReader *r, u_int32_t n, int *size)
+char *readBytes(ClassReader *r, u_int32_t n, u_int32_t *size)
 {
-    char *rs = (char *)malloc(n * sizeof(char));
+    char *rs = (char *)malloc(n * sizeof(char) + 1);
     memcpy(rs, r->data[r->position], n);
     r->position += n;
+    *size = n;
     return rs;
 }

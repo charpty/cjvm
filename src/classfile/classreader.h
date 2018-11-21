@@ -14,6 +14,6 @@ uint32_t readUint32(ClassReader *r);
 
 uint64_t readUint64(ClassReader *r);
 
-uint16_t *readUint16s(ClassReader *r, int *size);
+uint16_t *readUint16s(ClassReader *r, u_int32_t *size);
 
-char *readBytes(ClassReader *r, u_int32_t n, int *size);
+char *readBytes(ClassReader *r, u_int32_t n, u_int32_t *size);

@@ -1,21 +1,7 @@
 #include <stdlib.h>
-
-typedef struct cp_info
-{
-    uint8_t tag;
-    uint8_t *info;
-} cp_info;
-
-typedef struct CpInfo
-{
-    
-};
-
-typedef struct CP
-{
-    int len;
-    CpInfo *infos;
-} CP;
+#include "constant_pool.h"
+#include "member_info.h"
+#include "attribute_info.h"
 
 typedef struct attribute_info
 {
@@ -47,8 +33,7 @@ typedef struct ClassFile
     uint32_t magic;
     uint16_t minor_version;
     uint16_t major_version;
-    uint16_t constant_pool_count;
-    cp_info *constant_pool;
+    Cp *constant_pool;
 
     uint16_t access_flags;
     uint16_t this_class;
@@ -56,10 +41,8 @@ typedef struct ClassFile
     uint16_t interfaces_count;
     uint16_t *interfaces;
     uint16_t fields_count;
-    field_info *fields;
-    uint16_t methods_count;
-    method_info *methods;
-    uint16_t attributes_count;
-    attribute_info *attributes;
 
+    MemberInfos *fields;
+    MemberInfos *methods;
+    AttributeInfos* attributes;
 } ClassFile;

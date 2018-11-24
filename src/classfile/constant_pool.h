@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <classreader.h>
-#include "assert.c"
+#include "../util/assert.c"
 
 const int CONSTANT_Class = 7;
 const int CONSTANT_Fieldref = 9;

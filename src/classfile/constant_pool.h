@@ -1,21 +1,24 @@
+#ifndef MOON_CONSTANT_POOL_H
+#define MOON_CONSTANT_POOL_H
+
 #include <stdlib.h>
 #include <classreader.h>
 #include "../util/assert.c"
 
-const int CONSTANT_Class = 7;
-const int CONSTANT_Fieldref = 9;
-const int CONSTANT_Methodref = 10;
-const int CONSTANT_InterfaceMethodref = 11;
-const int CONSTANT_String = 8;
-const int CONSTANT_Integer = 3;
-const int CONSTANT_Float = 4;
-const int CONSTANT_Long = 5;
-const int CONSTANT_Double = 6;
-const int CONSTANT_NameAndType = 12;
-const int CONSTANT_Utf8 = 1;
-const int CONSTANT_MethodHandle = 15;
-const int CONSTANT_MethodType = 16;
-const int CONSTANT_InvokeDynamic = 18;
+#define CONSTANT_Class 7
+#define CONSTANT_Fieldref 9
+#define CONSTANT_Methodref 10
+#define CONSTANT_InterfaceMethodref 11
+#define CONSTANT_String 8
+#define CONSTANT_Integer 3
+#define CONSTANT_Float 4
+#define CONSTANT_Long 5
+#define CONSTANT_Double 6
+#define CONSTANT_NameAndType 12
+#define CONSTANT_Utf8 1
+#define CONSTANT_MethodHandle 15
+#define CONSTANT_MethodType 16
+#define CONSTANT_InvokeDynamic 18
 
 typedef struct NameAndType
 {
@@ -25,22 +28,24 @@ typedef struct NameAndType
     u_int32_t typeLen;
 } NameAndType;
 
-typedef struct CpInfo
+typedef struct CPInfo
 {
     uint8_t tag;
+    // 常量池里存着各种各样类型的信息
     void *v1;
     void *v2;
-} CpInfo;
+} CPInfo;
 
-typedef struct Cp
+// 用Cp表示class里的常量池，运行期的常量池则用GCP来表示，更亲切
+typedef struct CP
 {
-    int len;
-    CpInfo **infos;
-} Cp;
+    uint32_t len;
+    CPInfo **infos;
+} CP;
 
-CpInfo *readConstantInfo(ClassReader *r, Cp *cp)
+CPInfo *readConstantInfo(ClassReader *r, CP *cp)
 {
-    CpInfo *rs = (CpInfo *)malloc(sizeof(struct CpInfo));
+    CPInfo *rs = (CPInfo *)malloc(sizeof(struct CPInfo));
     uint8_t tag = rs->tag = readUint8(r);
     if (tag == CONSTANT_Class)
     {
@@ -147,12 +152,11 @@ CpInfo *readConstantInfo(ClassReader *r, Cp *cp)
     return NULL;
 }
 
-Cp *readConstantPool(ClassReader *r)
+CP *readConstantPool(ClassReader *r)
 {
-    Cp *rs = (Cp *)malloc(sizeof(struct Cp));
-
+    CP *rs = (CP *)malloc(sizeof(struct CP));
     int cpCount = readUint16(r);
-    rs->infos = (CpInfo **)malloc(cpCount * sizeof(CpInfo *));
+    rs->infos = (CPInfo **)malloc(cpCount * sizeof(CPInfo *));
 
     for (int i = 0; i < cpCount; i++)
     {
@@ -162,17 +166,17 @@ Cp *readConstantPool(ClassReader *r)
         // 这是由于一个byte占常量池2个位置
         if (rs->infos[i]->tag == CONSTANT_Long || (rs->infos[i]->tag = CONSTANT_Double))
         {
-            i++;
+            ++i;
             continue;
         }
     }
     return rs;
 }
 
-NameAndType *getNameAndType(Cp *cp, uint16_t index, char **type)
+NameAndType *getNameAndType(CP *cp, uint16_t index, char **type)
 {
     struct NameAndType *rs = (NameAndType *)malloc(sizeof(struct NameAndType));
-    CpInfo *ci = cp->infos[index];
+    CPInfo *ci = cp->infos[index];
     u_int16_t nameIndex = *(u_int16_t *)ci->v1;
     u_int16_t typeIndex = *(u_int16_t *)ci->v2;
     u_int32_t nameLen, typeLen;
@@ -185,14 +189,16 @@ NameAndType *getNameAndType(Cp *cp, uint16_t index, char **type)
 
 // make this C string? hate '\0'
 // use sds? miss some useful function
-char *getClassName(Cp *cp, uint16_t index, u_int32_t *len)
+char *getClassName(CP *cp, uint16_t index, u_int32_t *len)
 {
     return getUtf8(cp, index, len);
 }
 
-char *getUtf8(Cp *cp, uint16_t index, u_int32_t *len)
+char *getUtf8(CP *cp, uint16_t index, u_int32_t *len)
 {
-    CpInfo *ci = cp->infos[index];
+    CPInfo *ci = cp->infos[index];
     *len = *(u_int32_t *)ci->v1;
     return (char *)ci->v2;
 }
+
+#endif

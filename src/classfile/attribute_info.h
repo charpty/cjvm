@@ -1,3 +1,6 @@
+#ifndef MOON_ATTRIUTE_INFO_H
+#define MOON_ATTRIUTE_INFO_H
+
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7
 #include <stdlib.h>
 #include "constant_pool.h"
@@ -7,9 +10,17 @@
 typedef struct AttributeInfo
 {
     // 保留文件常量池的指针，后续不用每次传递了
-    Cp *cp;
+    CP *cp;
+    // 一共23中属性表，CJVM中仅解析需要用到的部分
+    // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7
     void *info;
 } AttributeInfo;
+
+typedef struct AttributeInfos
+{
+    uint32_t size;
+    AttributeInfo *infos;
+} AttributeInfos;
 
 typedef struct ExceptionTableEntry
 {
@@ -158,26 +169,28 @@ typedef struct UnparsedAttribute
     char *info;
 } UnparsedAttribute;
 
-typedef struct AttributeInfos
-{
-    uint32_t size;
-    AttributeInfo *infos;
-
-} Attribute;
-
-AttributeInfo *readAttribute(ClassReader *r, Cp *cp)
+AttributeInfo *readAttribute(ClassReader *r, CP *cp)
 {
     uint16_t attrNameIndex = readUint16(r);
     u_int32_t attrNameLen;
     char *attrName = getUtf8(cp, attrNameIndex, &attrNameLen);
     u_int32_t attrLen = readUint32(r);
     struct AttributeInfo *rs = (AttributeInfo *)malloc(sizeof(struct AttributeInfo));
+    rs->cp = cp;
 
     if (strcmp(attrName, "Code") == 0)
     {
+        struct AttrCode *attr = (AttrCode *)malloc(sizeof(struct AttrCode));
+        attr->maxStack = readUint16(r);
+        attr->maxLocals = readUint16(r);
+        attr->codeLen = readUint32(r);
+        rs->info = attr;
     }
     else if (strcmp(attrName, "ConstantValue") == 0)
     {
+        struct ConstantValueAttribute *attr = (ConstantValueAttribute *)malloc(sizeof(struct ConstantValueAttribute));
+        attr->constantValueIndex = readUint16(r);
+        rs->info = attr;
     }
     else if (strcmp(attrName, "Deprecated") == 0)
     {
@@ -206,3 +219,12 @@ AttributeInfo *readAttribute(ClassReader *r, Cp *cp)
 
     return rs;
 }
+
+AttributeInfos *readAttributes(ClassReader *r, CP *cp)
+{
+    //TODO
+    AttributeInfos *rs = (AttributeInfos *)malloc(sizeof(struct AttributeInfos));
+    return rs;
+}
+
+#endif

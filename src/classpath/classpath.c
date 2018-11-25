@@ -21,7 +21,7 @@ typedef struct ClassPath
     char *bootStrapPath;
     char *extPath;
     char *userPath;
-    char *(*readClass)(char *classname);
+    char *(*readClass)(ClassPath *classPath, char *classname);
 } ClassPath;
 
 typedef struct SClass
@@ -95,7 +95,7 @@ char *getJreDir(char *jrePath)
 
 SClass *readClassInJar(char *jarPath, char *classname)
 {
-    int err = 0;
+    int err;
     struct zip *z = zip_open(jarPath, 0, &err);
     if (err != 0)
     {

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "attribute_info.h"
+#include "constant_pool.h"
 
 typedef struct MemberInfo
 {
@@ -11,7 +12,7 @@ typedef struct MemberInfo
     // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.3.2
     uint16_t descriptorIndex;
     // 属性表，方法代码存在属性表中
-    Attribute attributes;
+    AttributeInfos *attributes;
 } MemberInfo;
 
 typedef struct MemberInfos
@@ -19,3 +20,9 @@ typedef struct MemberInfos
     uint32_t size;
     MemberInfo *infos;
 } MemberInfos;
+
+MemberInfos *readMembers(ClassReader *r, CP *cp)
+{
+    //TODO
+    return NULL;
+}

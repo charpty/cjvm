@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include <zip.h>
-#include "../../src/util/log.c"
-#include "../../src/util/files.c"
-#include "../../dep/sds/sds.c"
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>
+
+#include "util.h"
 
 void printClassHead(char *classStream);
 
@@ -14,11 +18,11 @@ void testReadLibDir(char *libPath, char *classname)
 
     int size;
 
-    File **files = listDir(libPath, ".jar", &size, 0);
+    XFile **files = listDir(libPath, ".jar", &size, 0);
     printf("size is %d\n", size);
     for (int i = 0; i < size; i++)
     {
-        File *f = files[i];
+        XFile *f = files[i];
         printf("jar file: %s \n", f->path);
     }
 }
@@ -68,7 +72,7 @@ void testReadJar(char *jarPath, char *classname)
 void testReadClassFile(char *classfile)
 {
     printf("%s\n", classfile);
-    struct File *f = readFile(classfile);
+    struct XFile *f = readFile(classfile);
     printClassHead(f->data);
 }
 

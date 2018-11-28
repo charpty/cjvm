@@ -1,4 +1,3 @@
-
 #ifndef MOON_UTIL_H
 #define MOON_UTIL_H
 
@@ -35,5 +34,6 @@ typedef struct XFile
 } XFile;
 
 XFile *readFile(char *filepath);
+XFile **listDir(char *dirPath, char *suffix, int *filesize, int recursive);
 
 #endif

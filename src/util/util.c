@@ -35,7 +35,7 @@ void LOG_WARN(char *format, ...)
     va_list list;
     va_start(list, format);
     vsprintf(buf, format, list);
-    printf("%s%s\n", KYEL, buf);
+    printf("%s%s%s\n", KYEL, buf, KWHT);
     va_end(list);
 }
 
@@ -45,7 +45,7 @@ void LOG_ERROR(char *file, int line, char *format, ...)
     va_list list;
     va_start(list, format);
     vsprintf(buf, format, list);
-    printf("%s%s:%d >> %s\n", KRED, file, line, buf);
+    printf("%s%s:%d >> %s%s\n", KRED, file, line, buf, KWHT);
     va_end(list);
 }
 
@@ -59,7 +59,9 @@ void assertEquals(char *s, char *d, char *format, ...)
         vsprintf(buf, format, list);
         va_end(list);
         LOG_ERROR(__FILE__, __LINE__, "%s, s is %s, d is %s", buf, s, d);
+#ifndef MOON_TEST
         exit(1);
+#endif
     }
 }
 

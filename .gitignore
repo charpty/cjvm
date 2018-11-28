@@ -7,3 +7,5 @@ test*.c
 **/*.out
 **/*.dSYM
 *.gch
+Makefile.dep
+*.o

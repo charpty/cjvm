@@ -10,11 +10,10 @@
  * 用户类路径 
  */
 
-#include <stdio.h>;
-#include <stdlib.h>;
-#include "log.c";
-#include "files.c";
+#include <stdio.h>
+#include <stdlib.h>
 #include <zip.h>
+#include "util/util.h"
 
 typedef struct ClassPath
 {
@@ -135,15 +134,15 @@ static SClass *readClassInDir(char *dir, char *classname)
 {
     SClass *r = NULL;
     int size;
-    File **files = listDir(dir, ".class", &size, 1);
+    XFile **files = listDir(dir, ".class", &size, 1);
     char *cpath = classname2Path(classname);
     for (int i = 0; i < size; i++)
     {
-        File *f = files[i];
+        XFile *f = files[i];
         char *path = f->path;
         if (!strcmp(path, cpath))
         {
-            File *f = readFile(path);
+            XFile *f = readFile(path);
             r = malloc(sizeof(struct SClass));
             r->bytes = f->data;
             return r;
@@ -156,11 +155,11 @@ static SClass *readClassInJarDir(char *dir, char *classname)
 {
     SClass *r = NULL;
     int size;
-    File **files = listDir(dir, ".jar", &size, 0);
+    XFile **files = listDir(dir, ".jar", &size, 0);
 
     for (int i = 0; i < size; i++)
     {
-        File *f = files[i];
+        XFile *f = files[i];
         r = readClassInJar(f->path, classname);
         if (r != NULL)
         {

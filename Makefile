@@ -1,7 +1,7 @@
 +.PHONY: compile
 WARN = -Wall -W -Wno-missing-field-initializers
 
-CC = gcc
+CC = gcc -g
 LD = ld
 TCC = $(CC)
 
@@ -15,6 +15,7 @@ endif
 
 SRC_DIR = $(CURRENT_DIR)/src
 UTIL_PATH = $(SRC_DIR)/util/
+CLASSPATH_PATH = $(SRC_DIR)/classpath/
 CLASSFILE_PATH = $(SRC_DIR)/classfile/
 
 TEST_PATH = $(CURRENT_DIR)/tests/
@@ -41,14 +42,20 @@ ALL_HEADER = $(UTIL_PATH)%.h $(CLASSFILE_PATH)%.h
 
 $(UTIL_PATH)%.o : $(UTIL_PATH)%.c
 	$(CC) $(PROP) -c $< -o $@
+$(CLASSPATH_PATH)%.o : $(CLASSPATH_PATH)%.c
+	$(CC) -I$(SRC_DIR) $(PROP) -c $< -o $@
 $(CLASSFILE_PATH)%.o : $(CLASSFILE_PATH)%.c
 	$(CC) $(PROP) -c $< -o $@
 
 $(TEST_PATH)%.o :  $(TEST_PATH)%.c
-	$(CC) $(PROP) -c $< -o $@		
+	$(CC) -I$(SRC_DIR) $(PROP) -c $< -o $@		
 
 test-util: $(UTIL_PATH)util.o $(TEST_PATH)test_util.o
 	$(TCC) $(FINAL_LIBS) -o $(TEST_OUT_PATH)$@ $^
+	$(TEST_OUT_PATH)$@
+
+test-classpath: $(UTIL_PATH)util.o $(CLASSPATH_PATH)classpath.o $(TEST_PATH)test_classpath.o 
+	$(TCC) -I$(SRC_DIR) $(FINAL_LIBS) -o $(TEST_OUT_PATH)$@ $^
 	$(TEST_OUT_PATH)$@
 
 test-classfile: 
@@ -57,4 +64,5 @@ test-classfile:
 clean:
 	rm -rf $(UTIL_PATH)*.o
 	rm -rf $(CLASSFILE_PATH)*.o
+	rm -rf $(CLASSPATH_PATH)*.o
 	rm -rf $(TEST_PATH)*.o

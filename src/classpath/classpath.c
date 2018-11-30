@@ -1,35 +1,18 @@
-//
-// Created by charpty on 2018/11/15.
-//
-
-/*
- * 将指定class文件加载到内存中
- * 
- * 启动类路径
- * 扩展类路径
- * 用户类路径 
- */
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <zip.h>
 #include "util/util.h"
+#include "classpath.h"
 
-typedef struct ClassPath
-{
-    char *bootStrapPath;
-    char *extPath;
-    char *userPath;
-    char *(*readClass)(ClassPath *classPath, char *classname);
-} ClassPath;
-
-typedef struct SClass
-{
-    char *bytes;
-    char *name;
-} SClass;
-
-char *getJreDir(char *jrePath);
+static char *path2classname(char *path);
+static char *path2classname(char *path);
+SClass *readUser(ClassPath *classPath, char *classname);
+SClass *readExt(ClassPath *classPath, char *classname);
+SClass *readBootStrap(ClassPath *classPath, char *classname);
+SClass *readClass(ClassPath *classPath, char *classname);
+static SClass *readClassInDir(char *dir, char *classname);
+static SClass *readClassInJarDir(char *dir, char *classname);
 
 ClassPath *buildClassPath(char *jrePath, char *cpPath)
 {
@@ -49,6 +32,7 @@ ClassPath *buildClassPath(char *jrePath, char *cpPath)
     int lenext = strlen(jrePath) + strlen(ext) + 1;
     char *libPath = malloc(lenlib);
     char *extPath = malloc(lenext);
+
     memset(libPath, 0, lenlib);
     memset(extPath, 0, lenext);
     strcat(libPath, jrePath);
@@ -65,11 +49,18 @@ ClassPath *buildClassPath(char *jrePath, char *cpPath)
 SClass *readClass(ClassPath *classPath, char *classname)
 {
     SClass *r;
-    if ((r = readBootStrap(classPath, classname) != NULL))
+    if ((r = readBootStrap(classPath, classname)) != NULL)
+    {
         return r;
-    if ((r = readBootStrap(classPath, classname) != NULL))
+    }
+    else if ((r = readExt(classPath, classname) )!= NULL)
+    {
         return r;
-    return readUser(classPath, classname);
+    }
+    else
+    {
+        return readUser(classPath, classname);
+    }
 }
 
 SClass *readBootStrap(ClassPath *classPath, char *classname)
@@ -88,19 +79,16 @@ SClass *readUser(ClassPath *classPath, char *classname)
     return readClassInDir(classPath->userPath, classname);
 }
 
-char *getJreDir(char *jrePath)
-{
-}
-
 SClass *readClassInJar(char *jarPath, char *classname)
 {
     int err;
     struct zip *z = zip_open(jarPath, 0, &err);
     if (err != 0)
     {
-        LOG_ERROR("open jar file %s failed, error code is: %d", jarPath, err);
+        LOG_ERROR(__FILE__, __LINE__, "open jar file %s failed, error code is: %d", jarPath, err);
         return NULL;
     }
+
     const char *name = classname;
     struct zip_stat st;
     zip_stat_init(&st);
@@ -114,7 +102,8 @@ SClass *readClassInJar(char *jarPath, char *classname)
     zip_fclose(f);
     zip_close(z);
 
-    SClass *r = (SClass *)malloc(sizeof(struct SClass));
+    struct SClass *r = (SClass *)malloc(sizeof(struct SClass));
+    r->len = st.size;
     r->bytes = contents;
     r->name = classname;
     return r;
@@ -140,7 +129,7 @@ static SClass *readClassInDir(char *dir, char *classname)
     {
         XFile *f = files[i];
         char *path = f->path;
-        if (!strcmp(path, cpath))
+        if (strcmp(path, cpath) == 0)
         {
             XFile *f = readFile(path);
             r = malloc(sizeof(struct SClass));

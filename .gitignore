@@ -9,3 +9,6 @@ test*.c
 *.gch
 Makefile.dep
 *.o
+tests/**/*.class
+# for javap -version xxx.class
+tests/**/*.classvp

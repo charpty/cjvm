@@ -20,7 +20,6 @@ void LOG_ERROR(char *file, int line, char *format, ...);
 #define KWHT "\x1B[37m"
 
 /* assert */
-
 void assertEquals(char *s, char *d, char *message, ...);
 void assertExpress(int express, char *format, ...);
 
@@ -34,6 +33,8 @@ typedef struct XFile
 } XFile;
 
 XFile *readFile(char *filepath);
-XFile **listDir(char *dirPath, char *suffix, int *filesize, int recursive);
+XFile **listDir(char *dir, char *suffix, int recursive, int *filesize);
+
+/* misc */
 
 #endif

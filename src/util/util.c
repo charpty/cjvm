@@ -103,9 +103,17 @@ typedef struct XFileList
 
 static void _listDir(XFileList *r, char *dirPath, char *suffix, int recursive);
 
-XFile **listDir(char *dirPath, char *suffix, int *filesize, int recursive)
+XFile **listDir(char *dir, char *suffix, int recursive, int *filesize)
 {
 
+    unsigned long slen = strlen(dir);
+    char *cdir = dir;
+    if (dir[slen - 1] == '/')
+    {
+        cdir = malloc(slen);
+        memset(cdir, 0, slen);
+        memcpy(cdir, dir, slen - 1);
+    }
     struct XFileList *r = malloc(sizeof(struct XFileList));
     struct XFileNode *head = malloc(sizeof(struct XFileNode));
 
@@ -113,7 +121,7 @@ XFile **listDir(char *dirPath, char *suffix, int *filesize, int recursive)
     r->current = head;
     r->len = 0;
 
-    _listDir(r, dirPath, suffix, recursive);
+    _listDir(r, cdir, suffix, recursive);
     unsigned long len = r->len;
     *filesize = len;
 
@@ -135,15 +143,15 @@ XFile **listDir(char *dirPath, char *suffix, int *filesize, int recursive)
     return files;
 }
 
-static void _listDir(XFileList *r, char *dirPath, char *suffix, int recursive)
+static void _listDir(XFileList *r, char *dir, char *suffix, int recursive)
 {
 
-    DIR *dir;
+    DIR *opened_dir;
     struct dirent *entry;
-    if (!(dir = opendir(dirPath)))
+    if (!(opened_dir = opendir(dir)))
         return;
 
-    while ((entry = readdir(dir)) != NULL)
+    while ((entry = readdir(opened_dir)) != NULL)
     {
         if (entry->d_type == DT_DIR)
         {
@@ -161,13 +169,11 @@ static void _listDir(XFileList *r, char *dirPath, char *suffix, int recursive)
             if (s == NULL || strcmp(s, suffix) != 0)
                 continue;
             XFile *f = malloc(sizeof(struct XFile));
-
-            char *dash = "/";
-            int len = strlen(dirPath) + strlen(entry->d_name) + 2;
+            int len = strlen(dir) + strlen(entry->d_name) + 2;
             f->path = malloc(len);
             memset(f->path, 0, len);
-            strcat(f->path, dirPath);
-            strcat(f->path, dash);
+            strcat(f->path, dir);
+            strcat(f->path, "/");
             strcat(f->path, entry->d_name);
 
             XFileNode *n = malloc(sizeof(struct XFileNode));
@@ -177,5 +183,5 @@ static void _listDir(XFileList *r, char *dirPath, char *suffix, int recursive)
             r->current = n;
         }
     }
-    closedir(dir);
+    closedir(opened_dir);
 }

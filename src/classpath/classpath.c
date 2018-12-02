@@ -137,6 +137,7 @@ static SClass *readClassInDir(char *dirPath, char *classname)
             XFile *f = readFile(path);
             r = malloc(sizeof(struct SClass));
             r->bytes = f->data;
+            r->len = f->len;
             r->name = malloc(strlen(classname) + 1);
             memset(r->name, 0, strlen(classname) + 1);
             memcpy(r->name, classname, strlen(classname));

@@ -2,10 +2,9 @@
 #define MOON_CLASSFILE_H
 
 #include <stdlib.h>
-#include "constant_pool.h"
-#include "member_info.h"
-#include "attribute_info.h"
-#include "classreader.h"
+#include "classfile/attribute_info.h"
+#include "classfile/constant_pool.h"
+#include "classfile/member_info.h"
 
 // 对应java中的public关键字
 #define ACC_PUBLIC 0x0001
@@ -21,31 +20,6 @@
 // 注解与枚举
 #define ACC_ANNOTATION 0x2000
 #define ACC_ENUM 0x4000
-
-typedef struct attribute_info
-{
-    uint16_t attribute_name_index;
-    uint32_t attribute_length;
-    uint8_t *info;
-} attribute_info;
-
-typedef struct field_info
-{
-    uint16_t access_flags;
-    uint16_t name_index;
-    uint16_t descriptor_index;
-    uint16_t attributes_count;
-    attribute_info *attributes;
-} field_info;
-
-typedef struct method_info
-{
-    uint16_t access_flags;
-    uint16_t name_index;
-    uint16_t descriptor_index;
-    uint16_t attributes_count;
-    attribute_info *attributes;
-} method_info;
 
 // 属性命名和oracle虚拟机规范尽量保持一直(规范中属性名都使用下划线，但结构体我习惯用驼峰形式)
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
@@ -70,13 +44,15 @@ typedef struct ClassFile
     uint16_t *interfaces;
     // 类中的各种属性，包括静态的和成员的
     uint16_t fields_count;
-    MemberInfos *fields;
+    struct MemberInfos *fields;
     // 各个方法的方法签名
-    MemberInfos *methods;
+    struct MemberInfos *methods;
     // 属性表，代码的字节码、异常表等大量信息都存在这里，比较复杂
-    AttributeInfos *attributes;
+    struct AttributeInfos *attributes;
 
-    ClassFile *(*readAsClassFile)(ClassReader *r);
+    struct ClassFile *(*readAsClassFile)(ClassReader *r);
 } ClassFile;
+
+ClassFile *readAsClassFile(ClassReader *r);
 
 #endif

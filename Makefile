@@ -47,7 +47,7 @@ $(UTIL_PATH)%.o : $(UTIL_PATH)%.c
 $(CLASSPATH_PATH)%.o : $(CLASSPATH_PATH)%.c
 	$(CC) -I$(SRC_DIR) $(PROP) -c $< -o $@
 $(CLASSFILE_PATH)%.o : $(CLASSFILE_PATH)%.c
-	$(CC) $(PROP) -c $< -o $@
+	$(CC) -I$(SRC_DIR) $(PROP) -c $< -o $@
 
 $(TEST_PATH)%.o :  $(TEST_PATH)%.c
 	$(CC) -I$(SRC_DIR) $(PROP) -c $< -o $@		
@@ -61,8 +61,10 @@ test-classpath: $(UTIL_PATH)util.o $(CLASSPATH_PATH)classpath.o $(TEST_PATH)test
 	$(JCC) $(TEST_RESOURCE_PATH)MySimple.java
 	$(TEST_OUT_PATH)$@
 
-test-classfile: 
-	@echo "test-classfile"
+test-classfile: $(UTIL_PATH)util.o $(CLASSPATH_PATH)classpath.o $(CLASSFILE_PATH)classfile.o $(TEST_PATH)test_classfile.o
+	$(TCC) -I$(SRC_DIR) $(FINAL_LIBS) -o $(TEST_OUT_PATH)$@ $^
+	$(JCC) $(TEST_RESOURCE_PATH)MySimple.java
+	$(TEST_OUT_PATH)$@
 
 clean:
 	rm -rf $(UTIL_PATH)*.o

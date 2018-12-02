@@ -3,14 +3,16 @@
 
 // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7
 #include <stdlib.h>
-#include "constant_pool.h"
-#include "classreader.h"
 #include <string.h>
+
+#include "classfile/classfile.h"
+#include "classfile/classreader.h"
+#include "classfile/constant_pool.h"
 
 typedef struct AttributeInfo
 {
     // 保留文件常量池的指针，后续不用每次传递了
-    CP *cp;
+    struct CP *cp;
     // 一共23中属性表，CJVM中仅解析需要用到的部分
     // https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.7
     void *info;
@@ -19,7 +21,7 @@ typedef struct AttributeInfo
 typedef struct AttributeInfos
 {
     uint32_t size;
-    AttributeInfo *infos;
+    AttributeInfo **infos;
 } AttributeInfos;
 
 typedef struct ExceptionTableEntry
@@ -72,8 +74,8 @@ typedef struct EnclosingMethodAttribute
 // 指向异常表
 typedef struct ExceptionsAttribute
 {
-    uint32_t len;
-    uint16_t *exceptionIndexTable[];
+    uint16_t len;
+    uint16_t *exceptionIndexTable;
 } ExceptionsAttribute;
 
 // 内部类
@@ -101,7 +103,7 @@ typedef struct LineNumberTableEntry
 typedef struct LineNumberTableAttribute
 {
     uint32_t len;
-    LineNumberTableEntry *lineNumberTable;
+    LineNumberTableEntry **entrys;
 } LineNumberTableAttribute;
 
 // 栈帧本地变量表
@@ -117,7 +119,7 @@ typedef struct LocalVariableTableEntry
 typedef struct LocalVariableTableAttribute
 {
     u_int32_t len;
-    LocalVariableTableEntry *localVariableTable;
+    LocalVariableTableEntry **entrys;
 } LocalVariableTableAttribute;
 
 typedef struct LocalVariableTypeTableEntry
@@ -145,7 +147,8 @@ typedef struct MethodParameter
 // JDK8以后可以指定编译器保留形参的名称
 typedef struct MethodParameters
 {
-    MethodParameter *parameters;
+    uint8_t len;
+    MethodParameter **parameters;
 } MethodParameters;
 
 typedef struct SignatureAttribute
@@ -156,7 +159,7 @@ typedef struct SignatureAttribute
 // 从哪编译而来
 typedef struct SourceFileAttribute
 {
-    uint16_t signatureIndex;
+    uint16_t sourceFileIndex;
 } SourceFileAttribute;
 
 // 后续再解析的属性
@@ -164,12 +167,11 @@ typedef struct UnparsedAttribute
 {
     uint32_t nameLen;
     char *name;
-    uint32_t length;
     uint32_t infoLen;
     char *info;
 } UnparsedAttribute;
 
-AttributeInfo *readAttribute(ClassReader *r, CP *cp)
+static AttributeInfo *readAttribute(ClassReader *r, CP *cp)
 {
     uint16_t attrNameIndex = readUint16(r);
     u_int32_t attrNameLen;
@@ -194,36 +196,94 @@ AttributeInfo *readAttribute(ClassReader *r, CP *cp)
     }
     else if (strcmp(attrName, "Deprecated") == 0)
     {
+        // do nothing
+        struct MarkerAttribute *attr = (MarkerAttribute *)malloc(sizeof(struct MarkerAttribute));
+        rs->info = attr;
     }
     else if (strcmp(attrName, "Exceptions") == 0)
     {
+        struct ExceptionsAttribute *attr = (ExceptionsAttribute *)malloc(sizeof(struct ExceptionsAttribute));
+        attr->exceptionIndexTable = readUint16s(r, &attr->len);
+        rs->info = attr;
     }
     else if (strcmp(attrName, "LineNumberTable") == 0)
     {
+        struct LineNumberTableAttribute *attr = (LineNumberTableAttribute *)malloc(sizeof(struct LineNumberTableAttribute));
+        attr->len = readUint16(r);
+        LineNumberTableEntry **entrys = malloc(sizeof(LineNumberTableEntry) * attr->len);
+        for (int i = 0, len = attr->len; i < len; i++)
+        {
+            entrys[i]->startPc = readUint16(r);
+            entrys[i]->lineNumber = readUint16(r);
+        }
+        attr->entrys = entrys;
+        rs->info = attr;
     }
     else if (strcmp(attrName, "LocalVariableTable") == 0)
     {
+        LocalVariableTableAttribute *attr = (LocalVariableTableAttribute *)malloc(sizeof(struct LineNumberTableAttribute));
+        attr->len = readUint16(r);
+        LocalVariableTableEntry **entrys = malloc(sizeof(LocalVariableTableEntry) * attr->len);
+        for (int i = 0, len = attr->len; i < len; i++)
+        {
+            entrys[i]->startPc = readUint16(r);
+            entrys[i]->length = readUint16(r);
+            entrys[i]->nameIndex = readUint16(r);
+            entrys[i]->descriptorIndex = readUint16(r);
+            entrys[i]->index = readUint16(r);
+        }
+        attr->entrys = entrys;
+        rs->info = attr;
     }
     else if (strcmp(attrName, "SourceFile") == 0)
     {
+        SourceFileAttribute *attr = (SourceFileAttribute *)malloc(sizeof(struct SourceFileAttribute));
+        attr->sourceFileIndex = readUint16(r);
+        rs->info = attr;
     }
     else if (strcmp(attrName, "Synthetic") == 0)
     {
+        // do nothing
+        struct MarkerAttribute *attr = (MarkerAttribute *)malloc(sizeof(struct MarkerAttribute));
+        rs->info = attr;
     }
     else if (strcmp(attrName, "MethodParameters") == 0)
     {
+        uint8_t parametersCount = readUint8(r);
+        struct MethodParameters *attr = (MethodParameters *)malloc(sizeof(struct MethodParameters));
+        attr->len = readUint8(r);
+        MethodParameter **parameters = malloc(sizeof(MethodParameter) * attr->len);
+        for (int i = 0, len = attr->len; i < len; i++)
+        {
+            parameters[i]->nameIndex = readUint16(r);
+            parameters[i]->accessFlags = readUint16(r);
+        }
+        attr->parameters = parameters;
+        rs->info = attr;
     }
     else
     {
+        struct UnparsedAttribute *attr = (UnparsedAttribute *)malloc(sizeof(struct UnparsedAttribute));
+        attr->nameLen = attrNameLen;
+        attr->name = attrName;
+        attr->infoLen = attrLen;
+        attr->info = readBytes(r, attrLen);
     }
-
     return rs;
 }
 
-AttributeInfos *readAttributes(ClassReader *r, CP *cp)
+static AttributeInfos *readAttributes(ClassReader *r, CP *cp)
 {
-    //TODO
     AttributeInfos *rs = (AttributeInfos *)malloc(sizeof(struct AttributeInfos));
+    uint16_t attributesCount = readUint16(r);
+    AttributeInfo **infos = malloc(sizeof(struct AttributeInfos) * attributesCount);
+    for (int i = 0; i < attributesCount; i++)
+    {
+        infos[i] = malloc(sizeof(AttributeInfo));
+        infos[i]->cp = cp;
+        infos[i]->info = readAttribute(r, cp);
+    }
+    rs->infos = infos;
     return rs;
 }
 

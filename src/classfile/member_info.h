@@ -1,6 +1,9 @@
+#ifndef MOON_MEMBER_INFO_H
+#define MOON_MEMBER_INFO_H
+
 #include <stdlib.h>
-#include "attribute_info.h"
-#include "constant_pool.h"
+#include "classfile/attribute_info.h"
+#include "classfile/constant_pool.h"
 
 typedef struct MemberInfo
 {
@@ -18,11 +21,25 @@ typedef struct MemberInfo
 typedef struct MemberInfos
 {
     uint32_t size;
-    MemberInfo *infos;
+    MemberInfo **infos;
 } MemberInfos;
 
-MemberInfos *readMembers(ClassReader *r, CP *cp)
+static MemberInfos *readMembers(struct ClassReader *r, struct CP *cp)
 {
-    //TODO
-    return NULL;
+    uint16_t memberCount = readUint16(r);
+    MemberInfos *rs = malloc(sizeof(MemberInfos));
+    MemberInfo **infos = malloc(sizeof(MemberInfo) * memberCount);
+    rs->size = memberCount;
+    for (int i = 0; i < memberCount; i++)
+    {
+        infos[i] = malloc(sizeof(MemberInfo));
+        infos[i]->accessFlags = readUint16(r);
+        infos[i]->nameIndex = readUint16(r);
+        infos[i]->descriptorIndex = readUint16(r);
+        infos[i]->attributes = readAttributes(r, cp);
+    }
+    rs->infos = infos;
+    return rs;
 }
+
+#endif

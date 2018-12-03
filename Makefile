@@ -66,6 +66,10 @@ test-classfile: $(UTIL_PATH)util.o $(CLASSPATH_PATH)classpath.o $(CLASSFILE_PATH
 	$(JCC) $(TEST_RESOURCE_PATH)MySimple.java
 	$(TEST_OUT_PATH)$@
 
+test-encoding: $(TEST_PATH)test_encoding.o
+	$(TCC) -o $(TEST_OUT_PATH)$@ $^
+	$(TEST_OUT_PATH)$@
+
 clean:
 	rm -rf $(UTIL_PATH)*.o
 	rm -rf $(CLASSFILE_PATH)*.o

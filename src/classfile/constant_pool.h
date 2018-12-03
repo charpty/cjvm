@@ -24,9 +24,7 @@
 typedef struct NameAndType
 {
     char *name;
-    u_int32_t nameLen;
     char *type;
-    u_int32_t typeLen;
 } NameAndType;
 
 typedef struct CPInfo
@@ -119,12 +117,17 @@ static CPInfo *readConstantInfo(ClassReader *r, CP *cp)
     }
     else if (tag == CONSTANT_Utf8)
     {
-        // len and char*
+        // make this C String,
         uint32_t len = (uint32_t)readUint16(r);
         char *x = readBytes(r, len);
-        rs->v1 = malloc(sizeof(uint32_t));
-        *(uint32_t *)rs->v1 = len;
-        rs->v2 = x;
+        rs->v1 = (char *)malloc(len + 1);
+        memset(rs->v1, 0, len + 1);
+        memcpy(rs->v1, x, len);
+        for (int i = 0; i < len; i++)
+        {
+            printf("char=%u\n", x[i]);
+        }
+        printf("len=%d, str=%s\n", len, rs->v1);
     }
     else if (tag == CONSTANT_MethodHandle)
     {
@@ -159,13 +162,14 @@ static CP *readConstantPool(ClassReader *r)
     rs->len = cpCount;
     rs->infos = (CPInfo **)malloc(cpCount * sizeof(CPInfo *));
 
-    for (int i = 0; i < cpCount; i++)
+    // 常量池从下标1开始
+    for (int i = 1; i < cpCount; i++)
     {
         rs->infos[i] = readConstantInfo(r, rs);
         // http://docs.oracle.com/javase/specs/jvms/se8/html/jvms-4.html#jvms-4.4.5
         // 这就是个数的特殊情况，读到long和double时，必须下一个元素是个空，以兼容老版本
         // 这是由于一个byte占常量池2个位置
-        if (rs->infos[i]->tag == CONSTANT_Long || (rs->infos[i]->tag = CONSTANT_Double))
+        if (rs->infos[i]->tag == CONSTANT_Long || (rs->infos[i]->tag == CONSTANT_Double))
         {
             ++i;
             continue;
@@ -174,18 +178,17 @@ static CP *readConstantPool(ClassReader *r)
     return rs;
 }
 
-static char *getUtf8(CP *cp, uint16_t index, u_int32_t *len)
+static char *getUtf8(CP *cp, uint16_t index)
 {
     CPInfo *ci = cp->infos[index];
-    *len = *(u_int32_t *)ci->v1;
-    return (char *)ci->v2;
+    return (char *)ci->v1;
 }
 
 // make this C string? hate '\0'
 // use sds? miss some useful function
-static char *getClassName(CP *cp, uint16_t index, u_int32_t *len)
+static char *getClassName(CP *cp, uint16_t index)
 {
-    return getUtf8(cp, index, len);
+    return getUtf8(cp, index);
 }
 
 static NameAndType *getNameAndType(CP *cp, uint16_t index, char **type)
@@ -194,11 +197,8 @@ static NameAndType *getNameAndType(CP *cp, uint16_t index, char **type)
     CPInfo *ci = cp->infos[index];
     u_int16_t nameIndex = *(u_int16_t *)ci->v1;
     u_int16_t typeIndex = *(u_int16_t *)ci->v2;
-    u_int32_t nameLen, typeLen;
-    rs->name = getUtf8(cp, nameIndex, &nameLen);
-    rs->nameLen = nameLen;
-    rs->type = getUtf8(cp, typeIndex, &typeLen);
-    rs->typeLen = typeLen;
+    rs->name = getUtf8(cp, nameIndex);
+    rs->type = getUtf8(cp, typeIndex);
     return rs;
 }
 

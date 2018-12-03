@@ -165,7 +165,6 @@ typedef struct SourceFileAttribute
 // 后续再解析的属性
 typedef struct UnparsedAttribute
 {
-    uint32_t nameLen;
     char *name;
     uint32_t infoLen;
     char *info;
@@ -174,8 +173,7 @@ typedef struct UnparsedAttribute
 static AttributeInfo *readAttribute(ClassReader *r, CP *cp)
 {
     uint16_t attrNameIndex = readUint16(r);
-    u_int32_t attrNameLen;
-    char *attrName = getUtf8(cp, attrNameIndex, &attrNameLen);
+    char *attrName = getUtf8(cp, attrNameIndex);
     u_int32_t attrLen = readUint32(r);
     struct AttributeInfo *rs = (AttributeInfo *)malloc(sizeof(struct AttributeInfo));
     rs->cp = cp;
@@ -264,7 +262,6 @@ static AttributeInfo *readAttribute(ClassReader *r, CP *cp)
     else
     {
         struct UnparsedAttribute *attr = (UnparsedAttribute *)malloc(sizeof(struct UnparsedAttribute));
-        attr->nameLen = attrNameLen;
         attr->name = attrName;
         attr->infoLen = attrLen;
         attr->info = readBytes(r, attrLen);

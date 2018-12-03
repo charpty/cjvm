@@ -35,26 +35,26 @@ static uint16_t readUint16(ClassReader *r)
 
 static uint32_t readUint32(ClassReader *r)
 {
-    uint32_t x1 = r->data[r->position++];
-    uint32_t x2 = r->data[r->position++];
-    uint32_t x3 = r->data[r->position++];
-    uint32_t x4 = r->data[r->position++];
+    u_int8_t x1 = r->data[r->position++];
+    u_int8_t x2 = r->data[r->position++];
+    u_int8_t x3 = r->data[r->position++];
+    u_int8_t x4 = r->data[r->position++];
     // *(uint32_t *)(r->data + r->position);
-    return x1 << 24 | x2 << 16 | x3 << 8 | x4;
+    return (uint32_t)x1 << 24 | (uint32_t)x2 << 16 | (uint32_t)x3 << 8 | (uint32_t)x4;
 }
 
 static uint64_t readUint64(ClassReader *r)
 {
-    uint32_t x1 = r->data[r->position++];
-    uint32_t x2 = r->data[r->position++];
-    uint32_t x3 = r->data[r->position++];
-    uint32_t x4 = r->data[r->position++];
-    uint32_t hi = x1 << 24 | x2 << 16 | x3 << 8 | x4;
+    u_int8_t x1 = r->data[r->position++];
+    u_int8_t x2 = r->data[r->position++];
+    u_int8_t x3 = r->data[r->position++];
+    u_int8_t x4 = r->data[r->position++];
+    uint32_t hi = (uint32_t)x1 << 24 | (uint32_t)x2 << 16 | (uint32_t)x3 << 8 | (uint32_t)x4;
     x1 = r->data[r->position++];
     x2 = r->data[r->position++];
     x3 = r->data[r->position++];
     x4 = r->data[r->position++];
-    uint32_t low = x1 << 24 | x2 << 16 | x3 << 8 | x4;
+    uint32_t low = (uint32_t)x1 << 24 | (uint32_t)x2 << 16 | (uint32_t)x3 << 8 | (uint32_t)x4;
     // *(uint64_t *)(r->data + r->position);
     return (uint64_t)hi << 32 | (uint64_t)low;
 }
@@ -71,7 +71,10 @@ static uint16_t *readUint16s(ClassReader *r, u_int16_t *size)
 
 static char *readBytes(ClassReader *r, u_int32_t n)
 {
-    char *rs = (char *)malloc(n * sizeof(char) + 1);
+    uint32_t len = n * sizeof(char) + 1;
+    // read as bytes not C string
+    char *rs = (char *)malloc(len);
+    memset(rs, 0, len);
     memcpy(rs, r->data, n);
     r->position += n;
     return rs;

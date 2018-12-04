@@ -123,11 +123,6 @@ static CPInfo *readConstantInfo(ClassReader *r, CP *cp)
         rs->v1 = (char *)malloc(len + 1);
         memset(rs->v1, 0, len + 1);
         memcpy(rs->v1, x, len);
-        for (int i = 0; i < len; i++)
-        {
-            printf("char=%u\n", x[i]);
-        }
-        printf("len=%d, str=%s\n", len, rs->v1);
     }
     else if (tag == CONSTANT_MethodHandle)
     {
@@ -188,7 +183,7 @@ static char *getUtf8(CP *cp, uint16_t index)
 // use sds? miss some useful function
 static char *getClassName(CP *cp, uint16_t index)
 {
-    return getUtf8(cp, index);
+    return getUtf8(cp, *(uint16_t *)cp->infos[index]->v1);
 }
 
 static NameAndType *getNameAndType(CP *cp, uint16_t index, char **type)

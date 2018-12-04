@@ -12,3 +12,5 @@ Makefile.dep
 tests/**/*.class
 # for javap -version xxx.class
 tests/**/*.classvp
+# very simple c test
+tests/test_simple.c

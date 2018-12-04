@@ -36,6 +36,12 @@ typedef struct ExceptionTableEntry
     uint16_t catchType;
 } ExceptionTableEntry;
 
+typedef struct ExceptionTable
+{
+    uint32_t size;
+    ExceptionTableEntry **entrys;
+} ExceptionTable;
+
 /*
  * 实际的代码（指令）存储在属性表中
  */
@@ -45,11 +51,8 @@ typedef struct AttrCode
     uint16_t maxLocals;
     uint32_t codeLen;
     char *code;
-    // 异常表entry长度
-    uint32_t eteLen;
-    ExceptionTableEntry *exceptionEntrys;
-    uint32_t attrLen;
-    AttributeInfo *attributes;
+    ExceptionTable *exceptionTable;
+    AttributeInfos *attributes;
 } AttrCode;
 
 // Deprecated过期、内部生成字段等标记位
@@ -170,6 +173,8 @@ typedef struct UnparsedAttribute
     char *info;
 } UnparsedAttribute;
 
+static AttributeInfos *readAttributes(ClassReader *r, CP *cp);
+
 static AttributeInfo *readAttribute(ClassReader *r, CP *cp)
 {
     uint16_t attrNameIndex = readUint16(r);
@@ -177,13 +182,28 @@ static AttributeInfo *readAttribute(ClassReader *r, CP *cp)
     u_int32_t attrLen = readUint32(r);
     struct AttributeInfo *rs = (AttributeInfo *)malloc(sizeof(struct AttributeInfo));
     rs->cp = cp;
-
     if (strcmp(attrName, "Code") == 0)
     {
         struct AttrCode *attr = (AttrCode *)malloc(sizeof(struct AttrCode));
         attr->maxStack = readUint16(r);
         attr->maxLocals = readUint16(r);
         attr->codeLen = readUint32(r);
+        attr->code = readBytes(r, attr->codeLen);
+
+        uint16_t exceptionTableLength = readUint16(r);
+        ExceptionTable *exceptionTable = malloc(sizeof(ExceptionTable));
+        exceptionTable->size = exceptionTableLength;
+        exceptionTable->entrys = malloc(sizeof(ExceptionTableEntry *) * exceptionTableLength);
+
+        for (int i = 0; i < exceptionTableLength; i++)
+        {
+            exceptionTable->entrys[i] = malloc(sizeof(ExceptionTableEntry));
+            exceptionTable->entrys[i]->startPc = readUint16(r);
+            exceptionTable->entrys[i]->endPc = readUint16(r);
+            exceptionTable->entrys[i]->handlerPc = readUint16(r);
+            exceptionTable->entrys[i]->catchType = readUint16(r);
+        }
+        attr->attributes = readAttributes(r, cp);
         rs->info = attr;
     }
     else if (strcmp(attrName, "ConstantValue") == 0)
@@ -208,9 +228,10 @@ static AttributeInfo *readAttribute(ClassReader *r, CP *cp)
     {
         struct LineNumberTableAttribute *attr = (LineNumberTableAttribute *)malloc(sizeof(struct LineNumberTableAttribute));
         attr->len = readUint16(r);
-        LineNumberTableEntry **entrys = malloc(sizeof(LineNumberTableEntry) * attr->len);
+        LineNumberTableEntry **entrys = malloc(sizeof(LineNumberTableEntry *) * attr->len);
         for (int i = 0, len = attr->len; i < len; i++)
         {
+            entrys[i] = malloc(sizeof(LineNumberTableEntry));
             entrys[i]->startPc = readUint16(r);
             entrys[i]->lineNumber = readUint16(r);
         }
@@ -273,7 +294,7 @@ static AttributeInfos *readAttributes(ClassReader *r, CP *cp)
 {
     AttributeInfos *rs = (AttributeInfos *)malloc(sizeof(struct AttributeInfos));
     uint16_t attributesCount = readUint16(r);
-    AttributeInfo **infos = malloc(sizeof(struct AttributeInfos) * attributesCount);
+    AttributeInfo **infos = malloc(sizeof(struct AttributeInfos *) * attributesCount);
     for (int i = 0; i < attributesCount; i++)
     {
         infos[i] = malloc(sizeof(AttributeInfo));

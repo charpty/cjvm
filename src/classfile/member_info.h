@@ -28,7 +28,7 @@ static MemberInfos *readMembers(struct ClassReader *r, struct CP *cp)
 {
     uint16_t memberCount = readUint16(r);
     MemberInfos *rs = malloc(sizeof(MemberInfos));
-    MemberInfo **infos = malloc(sizeof(MemberInfo) * memberCount);
+    MemberInfo **infos = malloc(sizeof(MemberInfo*) * memberCount);
     rs->size = memberCount;
     for (int i = 0; i < memberCount; i++)
     {

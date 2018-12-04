@@ -70,6 +70,13 @@ test-encoding: $(TEST_PATH)test_encoding.o
 	$(TCC) -o $(TEST_OUT_PATH)$@ $^
 	$(TEST_OUT_PATH)$@
 
+# just for my simple c test
+test-simple: $(TEST_PATH)test_simple.o
+	$(TCC) -o $(TEST_OUT_PATH)$@ $^
+	$(TEST_OUT_PATH)$@
+
+test-all: test-util test-classpath test-classfile test-encoding
+
 clean:
 	rm -rf $(UTIL_PATH)*.o
 	rm -rf $(CLASSFILE_PATH)*.o

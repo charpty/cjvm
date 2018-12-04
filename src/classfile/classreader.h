@@ -75,7 +75,7 @@ static char *readBytes(ClassReader *r, u_int32_t n)
     // read as bytes not C string
     char *rs = (char *)malloc(len);
     memset(rs, 0, len);
-    memcpy(rs, r->data, n);
+    memcpy(rs, r->data + r->position, n);
     r->position += n;
     return rs;
 }

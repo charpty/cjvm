@@ -3,7 +3,7 @@
 #include <string.h>
 #include <zip.h>
 #include "util/util.h"
-#include "classpath.h"
+#include "classfile/classpath.h"
 
 static char *path2classname(char *path);
 static char *path2classname(char *path);

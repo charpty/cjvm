@@ -26,8 +26,8 @@ ClassPath *buildClassPath(char *jrePath, char *cpPath)
     {
         jrePath = getenv("JAVA_HOME");
     }
-    char *lib = "/jre/lib";
-    char *ext = "/jre/lib/ext";
+    char *lib = "/jre/lib/";
+    char *ext = "/jre/lib/ext/";
     int lenlib = strlen(jrePath) + strlen(lib) + 1;
     int lenext = strlen(jrePath) + strlen(ext) + 1;
     char *libPath = malloc(lenlib);
@@ -43,7 +43,17 @@ ClassPath *buildClassPath(char *jrePath, char *cpPath)
     r->readClass = readClass;
     r->bootStrapPath = libPath;
     r->extPath = extPath;
-    r->userPath = cpPath;
+
+    char *userPath = cpPath;
+    uint32_t lenuser = strlen(userPath);
+    if (userPath[lenuser - 1] != '/')
+    {
+        userPath = malloc(lenuser + 2);
+        memset(userPath, 0, lenuser + 2);
+        memcpy(userPath, cpPath, lenuser);
+        strcat(userPath, "/");
+    }
+    r->userPath = userPath;
     return r;
 }
 
@@ -71,7 +81,12 @@ SClass *readExt(ClassPath *classPath, char *classname)
 
 SClass *readUser(ClassPath *classPath, char *classname)
 {
-    return readClassInDir(classPath->userPath, classname);
+    SClass *r = readClassInDir(classPath->userPath, classname);
+    if (r == NULL)
+    {
+        r = readClassInJarDir(classPath->userPath, classname);
+    }
+    return r;
 }
 
 SClass *readClassInJar(char *jarPath, char *classname)
@@ -84,7 +99,6 @@ SClass *readClassInJar(char *jarPath, char *classname)
         LOG_ERROR(__FILE__, __LINE__, "open jar file %s failed, error code is: %d", jarPath, err);
         return NULL;
     }
-
     const char *name = classname;
     struct zip_stat st;
     zip_stat_init(&st);
@@ -106,8 +120,8 @@ SClass *readClassInJar(char *jarPath, char *classname)
 
 static char *classname2Path(char *classname)
 {
-    char *r = malloc(strlen(classname) + 1);
     int len = strlen(classname);
+    char *r = malloc(len + 1);
     memset(r, 0, len + 1);
     while (len--)
     {
@@ -123,13 +137,12 @@ static char *classname2Path(char *classname)
 static SClass *readClassInDir(char *dirPath, char *classname)
 {
     SClass *r = NULL;
-    int size;
     int dlen = strlen(dirPath);
-    XFile **files = listDir(dirPath, ".class", 1, &size);
+    XFiles *files = listDir(dirPath, ".class", 1);
     char *cpath = classname2Path(classname);
-    for (int i = 0; i < size; i++)
+    for (int i = 0, size = files->len; i < size; i++)
     {
-        XFile *f = files[i];
+        XFile *f = files->files[i];
         char *path = f->path;
         char *xpath = path + dlen;
         if (strcmp(xpath, cpath) == 0)
@@ -150,11 +163,10 @@ static SClass *readClassInDir(char *dirPath, char *classname)
 static SClass *readClassInJarDir(char *dir, char *classname)
 {
     SClass *r = NULL;
-    int size;
-    XFile **files = listDir(dir, ".jar", 0, &size);
-    for (int i = 0; i < size; i++)
+    XFiles *files = listDir(dir, ".jar", 1);
+    for (int i = 0, size = files->len; i < size; i++)
     {
-        XFile *f = files[i];
+        XFile *f = files->files[i];
         r = readClassInJar(f->path, classname);
         if (r != NULL)
         {

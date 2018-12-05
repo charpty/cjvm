@@ -59,9 +59,21 @@ void assertEquals(char *s, char *d, char *format, ...)
         vsprintf(buf, format, list);
         va_end(list);
         LOG_ERROR(__FILE__, __LINE__, "%s, s is %s, d is %s", buf, s, d);
-#ifndef MOON_TEST
         exit(1);
-#endif
+    }
+}
+
+void assertExpress(int express, char *format, ...)
+{
+    if (express <= 0)
+    {
+        char buf[256] = {0};
+        va_list list;
+        va_start(list, format);
+        vsprintf(buf, format, list);
+        va_end(list);
+        LOG_ERROR(__FILE__, __LINE__, "express is %d", express);
+        exit(express);
     }
 }
 
@@ -106,6 +118,12 @@ XFile *readFile(char *filepath)
     }
     r->data = buffer;
     r->len = len;
+    char *s = strrchr(filepath, '/');
+
+    uint32_t nameLen = strlen(s) - 1;
+    r->name = malloc(nameLen + 1);
+    r->name[nameLen] = '\0';
+    memcpy(r->name, s + 1, nameLen);
     return r;
 }
 
@@ -124,7 +142,7 @@ typedef struct XFileList
 
 static void _listDir(XFileList *r, char *dirPath, char *suffix, int recursive);
 
-XFile **listDir(char *dir, char *suffix, int recursive, int *filesize)
+XFiles *listDir(char *dir, char *suffix, int recursive)
 {
 
     unsigned long slen = strlen(dir);
@@ -143,9 +161,8 @@ XFile **listDir(char *dir, char *suffix, int recursive, int *filesize)
     r->len = 0;
 
     _listDir(r, cdir, suffix, recursive);
-    unsigned long len = r->len;
-    *filesize = len;
-
+    uint32_t len = r->len;
+    XFiles *rs = malloc(sizeof(struct XFiles));
     XFile **files = malloc(sizeof(struct XFile) * len);
     int n = 0;
 
@@ -153,7 +170,6 @@ XFile **listDir(char *dir, char *suffix, int recursive, int *filesize)
     XFileNode *node = r->head;
     for (int n = 0; n < len; n++)
     {
-        fflush(stdout);
         prev = node;
         node = node->next;
         files[n] = node->file;
@@ -161,7 +177,9 @@ XFile **listDir(char *dir, char *suffix, int recursive, int *filesize)
     }
     free(node);
     free(r);
-    return files;
+    rs->files = files;
+    rs->len = len;
+    return rs;
 }
 
 static void _listDir(XFileList *r, char *dir, char *suffix, int recursive)
@@ -174,28 +192,34 @@ static void _listDir(XFileList *r, char *dir, char *suffix, int recursive)
 
     while ((entry = readdir(opened_dir)) != NULL)
     {
+        char *d_name = entry->d_name;
         if (entry->d_type == DT_DIR)
         {
-            char path[1024];
-            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            if (strcmp(d_name, ".") == 0 || strcmp(d_name, "..") == 0)
                 continue;
             if (recursive)
             {
-                _listDir(r, entry->d_name, suffix, recursive);
+                char path[512];
+                sprintf(path, "%s/%s", dir, d_name);
+                _listDir(r, path, suffix, recursive);
             }
         }
         else
         {
-            char *s = strrchr(entry->d_name, '.');
+            char *s = strrchr(d_name, '.');
             if (s == NULL || strcmp(s, suffix) != 0)
                 continue;
             XFile *f = malloc(sizeof(struct XFile));
-            int len = strlen(dir) + strlen(entry->d_name) + 2;
+            uint32_t dlen = strlen(d_name) + 1;
+            uint32_t len = strlen(dir) + strlen(d_name) + 2;
             f->path = malloc(len);
+            f->name = malloc(dlen);
             memset(f->path, 0, len);
+            memset(f->name, 0, dlen);
             strcat(f->path, dir);
             strcat(f->path, "/");
-            strcat(f->path, entry->d_name);
+            strcat(f->path, d_name);
+            strcat(f->name, d_name);
 
             XFileNode *n = malloc(sizeof(struct XFileNode));
             n->file = f;

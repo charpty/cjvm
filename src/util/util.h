@@ -28,12 +28,19 @@ typedef struct XFile
 {
     // 文件路径：/tmp/cc.jar; /tmp/com/charpty/Test.class
     char *path;
-    int len;
+    char *name;
+    uint32_t len;
     char *data;
 } XFile;
 
+typedef struct XFiles
+{
+    uint32_t len;
+    XFile **files;
+} XFiles;
+
 XFile *readFile(char *filepath);
-XFile **listDir(char *dir, char *suffix, int recursive, int *filesize);
+XFiles *listDir(char *dir, char *suffix, int recursive);
 
 /* misc */
 

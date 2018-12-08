@@ -3,41 +3,33 @@
 
 #include <stdlib.h>
 #include "runtime/class.h"
+#include "runtime/frame.h"
 
-typedef struct LocalVars
-{
-} LocalVars;
-
-typedef struct OperandStack
-{
-    uint32_t size;
-} OperandStack;
-
-typedef struct Frame
-{
-    // 栈中桢通过链表形式连接
-    Frame *lower;
-    // 本地变量表
-    LocalVars *localVars;
-    // 操作数栈
-    OperandStack *operandStack;
-    // 所属线程
-    struct Thread *thread;
-    // 当前帧所在方法
-    struct Method *method;
-    // 下一个执行指令位置
-    int nextPC;
-} Frame;
-
+// https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-2.html#jvms-2.6
 typedef struct Stack
 {
-
+    uint32_t maxSize;
+    uint32_t size;
+    // 栈中存的都是一个又一个栈帧
+    struct Frame *topFrame;
 } Stack;
 
-typedef struct Thread
+// Java11 Run-Time Data Areas: https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-2.html#jvms-2.5
+typedef struct JThread
 {
     int pc;
+    // 每个线程都私有一个Java虚拟机栈
+    struct Stack stack;
+} JThread;
 
-} Thread;
+struct JThread *createThread();
+struct Frame *createFrame(struct JThread *thread);
+
+int getPC(struct JThread *thread);
+void setPC(struct JThread *thread, int pc);
+
+void pushFrame(struct JThread *thread);
+struct Frame *popFrame(struct JThread *thread);
+struct Frame *currentFrame(struct JThread *thread);
 
 #endif

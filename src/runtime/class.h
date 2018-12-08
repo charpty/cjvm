@@ -2,6 +2,7 @@
 #define MOON_CLASS_H
 
 #include <stdlib.h>
+#include "rcp.h"
 
 typedef struct Field
 {

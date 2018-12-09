@@ -3,16 +3,16 @@
 
 #include <stdlib.h>
 
-typedef union LocalVar {
+typedef union Slot {
     int32_t num;
     void *ref;
-} LocalVar;
+} Slot;
 
 typedef struct LocalVars
 {
     // 保存代码执行过程中本地变量的值
     uint32_t size;
-    union LocalVar **localVars;
+    union Slot **vars;
 } LocalVars;
 
 typedef struct OperandStack
@@ -20,7 +20,7 @@ typedef struct OperandStack
     // 只是模拟指令执行的栈，没有存储意义
     uint32_t size;
     // 模拟链表存储，使用数组存储有些浪费
-    union LocalVar **vars;
+    union Slot **vars;
 } OperandStack;
 
 typedef struct Frame
@@ -42,8 +42,8 @@ typedef struct Frame
 void *getThis(struct LocalVars *vars);
 void setRef(struct LocalVars *vars, uint32_t index, void *ref);
 void *getRef(struct LocalVars *vars, uint32_t index);
-void setVar(struct LocalVars *vars, uint32_t index, union LocalVar *var);
-union LocalVar *getVar(struct LocalVars *vars, uint32_t index);
+void setVar(struct LocalVars *vars, uint32_t index, union Slot *var);
+union Slot *getVar(struct LocalVars *vars, uint32_t index);
 void setInt(struct LocalVars *vars, uint32_t index, int32_t value);
 int32_t getInt(struct LocalVars *vars, uint32_t index);
 void setLong(struct LocalVars *vars, uint32_t index, int64_t value);
@@ -56,8 +56,8 @@ double getDobule(struct LocalVars *vars, uint32_t index);
 void pushRef(struct OperandStack *stack, void *ref);
 void *popRef(struct OperandStack *stack);
 void *topRef(struct OperandStack *stack);
-void pushVar(struct OperandStack *stack, union LocalVar *var);
-union LocalVar *popVar(struct OperandStack *stack);
+void pushVar(struct OperandStack *stack, union Slot *var);
+union Slot *popVar(struct OperandStack *stack);
 void pushBoolean(struct OperandStack *stack, int8_t *value);
 int8_t popBoolean(struct OperandStack *stack);
 void popInt(struct OperandStack *stack, int32_t value);

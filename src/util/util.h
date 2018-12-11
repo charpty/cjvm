@@ -43,5 +43,7 @@ XFile *readFile(char *filepath);
 XFiles *listDir(char *dir, char *suffix, int recursive);
 
 /* misc */
+int64_t doubleToInt64(double s);
+int32_t floatToInt32(float s);
 
 #endif

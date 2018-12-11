@@ -1,7 +1,7 @@
 #ifndef MOON_RCP_H
 #define MOON_RCP_H
 
-#include "runtime/class.h"
+#include "classfile/constant_pool.h"
 
 // https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html
 // 在类加载时进行解析
@@ -28,10 +28,24 @@ typedef struct RCPInfo
 typedef struct RCP
 {
     u_int32_t size;
-    RCPInfo **info;
+    RCPInfo **infos;
 } RCP;
 
-struct RCP *buildConstantPool(struct IKlass *clazz);
-struct RCPInfo *getRCPInfo(struct RCP *rcp);
+struct RCP *buildConstantPool(struct CP *cp)
+{
+    struct RCP *rcp = (RCP *)malloc(sizeof(struct RCP));
+    rcp->size = cp->len;
+    for (int i = 0, size = rcp->size; i < size; i++)
+    {
+        rcp->infos[i] = (RCPInfo *)malloc(sizeof(struct RCPInfo));
+        rcp->infos[i]->type = cp->infos[i]->tag;
+    }
+    return rcp;
+}
+
+struct RCPInfo *getRCPInfo(struct RCP *rcp, uint32_t index)
+{
+    return rcp->infos[index];
+}
 
 #endif

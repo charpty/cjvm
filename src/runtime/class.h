@@ -73,7 +73,7 @@ int8_t isAnnotation(IKlass *clazz);
 int8_t isEnum(IKlass *clazz);
 
 char *getName(IKlass *clazz);
-char *getField(IKlass *clazz, char *name, char *descriptor, uint8_t static);
-char *getMethod(IKlass *clazz, char *name, char *descriptor, uint8_t static);
+char *getField(IKlass *clazz, char *name, char *descriptor, uint8_t isStatic);
+char *getMethod(IKlass *clazz, char *name, char *descriptor, uint8_t isStatic);
 
 #endif

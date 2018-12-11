@@ -21,7 +21,7 @@
 #define ACC_ANNOTATION 0x2000
 #define ACC_ENUM 0x4000
 
-// 属性命名和oracle虚拟机规范尽量保持一直(规范中属性名都使用下划线，但结构体我习惯用驼峰形式)
+// 属性命名和oracle虚拟机规范尽量保持一致(规范中属性名都使用下划线，但结构体我习惯用驼峰形式)
 // https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 typedef struct ClassFile
 {

@@ -20,7 +20,7 @@ typedef struct OperandStack
     // 只是模拟指令执行的栈，没有存储意义
     uint32_t size;
     // 模拟链表存储，使用数组存储有些浪费
-    union Slot **vars;
+    union Slot **slots;
 } OperandStack;
 
 typedef struct Frame
@@ -47,7 +47,7 @@ union Slot *getVar(struct LocalVars *vars, uint32_t index);
 void setInt(struct LocalVars *vars, uint32_t index, int32_t value);
 int32_t getInt(struct LocalVars *vars, uint32_t index);
 void setLong(struct LocalVars *vars, uint32_t index, int64_t value);
-int64_t getLongstruct(LocalVars *localVars, uint32_t index);
+int64_t getLong(LocalVars *vars, uint32_t index);
 void setFloat(struct LocalVars *vars, uint32_t index, float value);
 float getFloat(struct LocalVars *vars, uint32_t index);
 void setDobule(struct LocalVars *vars, uint32_t index, double value);
@@ -58,9 +58,9 @@ void *popRef(struct OperandStack *stack);
 void *topRef(struct OperandStack *stack);
 void pushVar(struct OperandStack *stack, union Slot *var);
 union Slot *popVar(struct OperandStack *stack);
-void pushBoolean(struct OperandStack *stack, int8_t *value);
+void pushBoolean(struct OperandStack *stack, int8_t value);
 int8_t popBoolean(struct OperandStack *stack);
-void popInt(struct OperandStack *stack, int32_t value);
+void pushInt(struct OperandStack *stack, int32_t value);
 int32_t popInt(struct OperandStack *stack);
 void pushLong(struct OperandStack *stack, int64_t value);
 int64_t popLong(struct OperandStack *stack);

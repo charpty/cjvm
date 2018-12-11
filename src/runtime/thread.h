@@ -25,8 +25,6 @@ typedef struct JThread
 } JThread;
 
 struct JThread *createThread();
-int getPC(struct JThread *thread);
-void setPC(struct JThread *thread, int pc);
 
 void pushFrame(struct JThread *thread);
 struct Frame *popFrame(struct JThread *thread);

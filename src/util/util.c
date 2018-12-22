@@ -230,3 +230,27 @@ static void _listDir(XFileList *r, char *dir, char *suffix, int recursive)
     }
     closedir(opened_dir);
 }
+
+union idouble {
+    double d;
+    int64_t i;
+};
+
+union ifloat {
+    float f;
+    int32_t i;
+};
+
+int64_t doubleToInt64(double s)
+{
+    // TODO
+    union idouble r = {.d = s};
+    return r.i;
+}
+
+int32_t floatToInt32(float s)
+{
+    // TODO
+    union ifloat r = {.f = s};
+    return r.i;
+}

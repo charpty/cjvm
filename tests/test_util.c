@@ -62,6 +62,12 @@ void testListJavaHome()
     assertExpress(exist, "can not find rt.jar in dir: %s", javaHome);
 }
 
+void testDoubleFloatConvert()
+{
+    double a = 1.0;
+    doubleToInt64();
+}
+
 int main(int argc, char const *argv[])
 {
     /* log */

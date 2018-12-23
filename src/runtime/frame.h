@@ -36,7 +36,7 @@ typedef struct Frame
     // 当前帧所在方法
     struct Method *method;
     // 下一个执行指令位置
-    int nextPC;
+    int32_t nextPC;
 } Frame;
 
 void *getThis(struct LocalVars *vars);

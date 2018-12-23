@@ -21,12 +21,12 @@ typedef struct JThread
     // 每个线程都私有一个Java虚拟机栈
     struct Stack stack;
     // 创建Frame的操作比较复杂多变
-    struct Frame (*createFrame)(struct JThread *thread);
+    struct Frame *(*createFrame)(struct JThread *thread, Method *method);
 } JThread;
 
 struct JThread *createThread();
 
-void pushFrame(struct JThread *thread);
+void pushFrame(struct JThread *thread, Frame *frame);
 struct Frame *popFrame(struct JThread *thread);
 struct Frame *currentFrame(struct JThread *thread);
 #endif

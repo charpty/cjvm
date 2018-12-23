@@ -16,7 +16,7 @@ typedef struct ClassReader
 
 static ClassReader *buildClassReader(SClass *scalss)
 {
-    ClassReader *rs = malloc(sizeof(ClassReader));
+    ClassReader *rs = (ClassReader *)malloc(sizeof(ClassReader));
     rs->position = 0;
     rs->len = scalss->len;
     rs->data = scalss->bytes;

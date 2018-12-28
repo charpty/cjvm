@@ -1,4 +1,12 @@
 #include "interpreter/bytecode_interpreter.h"
+#include "interpreter/ins_constant.h"
+
+BC_IPT *buildByteCodeInterpreter()
+{
+    BC_IPT *r = malloc(sizeof(BC_IPT));
+    REGISTER_INS_METHOD(r, 0);
+    return r;
+}
 
 int execute(JThread *thread, Method *method)
 {
@@ -6,12 +14,14 @@ int execute(JThread *thread, Method *method)
     pushFrame(thread, frame);
     ByteCodeStream *stream = (ByteCodeStream *)malloc(sizeof(ByteCodeStream));
     Frame *current;
-
+    BC_IPT *bcIpt = buildByteCodeInterpreter();
     while ((current = currentFrame(thread)) != NULL)
     {
+        thread->pc = frame->nextPC;
         stream->code = current->method->code;
-        stream->pc = 0;
-
-        
+        stream->pc = frame->nextPC;
+        uint8_t opCode = readUint8(stream);
+        // 在指令中实现对nextPC的设置
+        (*bcIpt->call[opCode])(current, stream);
     }
 }

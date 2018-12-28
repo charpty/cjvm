@@ -1,0 +1,84 @@
+#ifndef MOON_INS_CONSTANT_H
+#define MOON_INS_CONSTANT_H
+
+#include "runtime/class.h"
+#include "runtime/thread.h"
+#include "interpreter/bytecode_stream.h"
+
+// 常量
+// NOP 0         0x00 什么都不做
+// ACONST_NULL 1 0x01 将null推送至栈顶
+// ICONST_M1 2   0x02 将int型-1推送至栈顶
+// ICONST_0 3    0x03 将int型0推送至栈顶
+// ICONST_1 4    0x04 将int型1推送至栈顶
+// ICONST_2 5    0x05 将int型2推送至栈顶
+// ICONST_3 6    0x06 将int型3推送至栈顶
+// ICONST_4 7    0x07 将int型4推送至栈顶
+// ICONST_5 8    0x08 将int型5推送至栈顶
+// LCONST_0 9    0x09 将long型0推送至栈顶
+// LCONST_1 10   0x0a 将long型1推送至栈顶
+// FCONST_0 11   0x0b 将float型0推送至栈顶
+// FCONST_1 12   0x0c 将float型1推送至栈顶
+// FCONST_2 13   0x0d 将float型2推送至栈顶
+// DCONST_0 14   0x0e 将double型0推送至栈顶
+// DCONST_1 15   0x0f 将double型1推送至栈顶
+// BIPUSH 16     0x10 将单字节的常量值（-128~127）推送至栈顶
+// SIPUSH 17     0x11 将一个短整型常量值（-32768~32767）推送至栈顶
+// LDC 18        0x12 将int，float或String型常量值从常量池中推送至栈顶
+// LDC_W 19      0x13 将int，float或String型常量值从常量池中推送至栈顶（宽索引）
+// LDC2_W 20     0x14 将long或double型常量值从常量池中推送至栈顶（宽索引）
+
+void insm_0(Frame *frame, ByteCodeStream *stream)
+{
+    // NOP
+}
+
+void insm_1(Frame *frame, ByteCodeStream *stream)
+{
+    // ACONST_NULL
+    pushRef(frame->operandStack, NULL);
+}
+
+void insm_2(Frame *frame, ByteCodeStream *stream)
+{
+    // ICONST_M1
+    pushInt(frame->operandStack, -1);
+}
+
+void insm_3(Frame *frame, ByteCodeStream *stream)
+{
+    // ICONST_0
+    pushInt(frame->operandStack, 0);
+}
+
+void insm_4(Frame *frame, ByteCodeStream *stream)
+{
+    // ICONST1
+    pushInt(frame->operandStack, 1);
+}
+
+void insm_5(Frame *frame, ByteCodeStream *stream)
+{
+    // ICONST_2
+    pushInt(frame->operandStack, 0);
+}
+void insm_6(Frame *frame, ByteCodeStream *stream)
+{
+    // ICONST_3
+    pushInt(frame->operandStack, 0);
+}
+void insm_7(Frame *frame, ByteCodeStream *stream)
+{
+    // ICONST_4
+    pushInt(frame->operandStack, 0);
+}
+
+void insm_8(Frame *frame, ByteCodeStream *stream)
+{
+    // ICONST_5
+    pushInt(frame->operandStack, 0);
+}
+
+
+
+#endif

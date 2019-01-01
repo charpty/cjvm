@@ -1,4 +1,4 @@
-#ifndef MOON_FRAME_Hdouble value);
+#ifndef MOON_FRAME_H
 #define MOON_FRAME_H
 
 #include <stdlib.h>

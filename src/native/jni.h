@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-// https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/jniTOC.html
+// https://docs.oracle.com/javase/9/docs/specs/jni/index.html
 
 // TODO JNI相关的结构体
 typedef const struct JNINativeInterface *JNIEnv;
@@ -70,53 +70,93 @@ typedef const struct JNINativeInterface
     (JNIEnv *env, char *name, JNI_OBJECT loader, JNI_BYTE *buf,
      JNI_SIZE len);
 
+    // In JDK release 1.1, this function loads a locally-defined class.
+    // 在JDK1.1版本中，这个函数用来加载一个本地定义的class
+    // Since Java 2 SDK release 1.2, the Java security model allows non-system classes to load and call native methods.
+    // 在JDK1.2以后，Java安全模型允许第三方类加载器，所以它也可以用来使用第三方类加载器加载class
     JNI_CLASS(*FindClass)
     (JNIEnv *env, char *name);
-
+    // to call Java methods or access Java fields if they know the name and type of the methods or fields.
+    // Java程序可以通过方法名或者属性名访问方法或属性（反射）
+    // 方法 -> 方法ID
     JNI_METHOD_ID(*FromReflectedMethod)
     (JNIEnv *env, JNI_OBJECT method);
+    // 属性 -> 属性ID
     JNI_FIELD_ID(*FromReflectedField)
     (JNIEnv *env, JNI_OBJECT field);
-
+    // 方法ID -> 方法
     JNI_OBJECT(*ToReflectedMethod)
     (JNIEnv *env, JNI_CLASS cls, JNI_METHOD_ID methodID, JNI_BOOLEAN isStatic);
-
+    // 获取类的父类，接口或Object的父类为NULL
     JNI_CLASS(*GetSuperclass)
     (JNIEnv *env, JNI_CLASS sub);
+    // Determines whether an object of clazz1 can be safely cast to clazz2
+    // 判断class1能否转换为class2，java.lang.Class.isAssignableFrom的实现
     JNI_BOOLEAN(*IsAssignableFrom)
     (JNIEnv *env, JNI_CLASS sub, JNI_CLASS sup);
-
+    // 属性ID -> 属性
     JNI_OBJECT(*ToReflectedField)
     (JNIEnv *env, JNI_CLASS cls, JNI_FIELD_ID fieldID, JNI_BOOLEAN isStatic);
-
+    // Causes a java.lang.Throwable object to be thrown
+    // 抛出异常
     JNI_INT(*Throw)
     (JNIEnv *env, JNI_THROWABLE obj);
+    // Constructs an exception object from the specified class with the message specified by message and causes that exception to be thrown.
+    // 根据原异常构建一个新的异常
     JNI_INT(*ThrowNew)
     (JNIEnv *env, JNI_CLASS clazz, char *msg);
+    // Determines if an exception is being thrown
+    // 判断是否抛出异常了
     JNI_THROWABLE(*ExceptionOccurred)
     (JNIEnv *env);
+    // Prints an exception and a backtrace of the stack to a system error-reporting channel
+    // 打印异常堆栈
     void (*ExceptionDescribe)(JNIEnv *env);
+    // Clears any exception that is currently being thrown
+    // 清理当前异常
     void (*ExceptionClear)(JNIEnv *env);
+    // Raises a fatal error and does not expect the VM to recover.
+    // 抛出一个不可恢复的异常
     void (*FatalError)(JNIEnv *env, char *msg);
 
+    // Creates a new local reference frame, in which at least a given number of local references can be created
+    // 创建一个局部引用的栈帧
     JNI_INT(*PushLocalFrame)
     (JNIEnv *env, JNI_INT capacity);
+    // Pops off the current local reference frame
+    // 弹出局部栈帧
     JNI_OBJECT(*PopLocalFrame)
     (JNIEnv *env, JNI_OBJECT result);
 
+    // Creates a new global reference to the object referred to by the obj argument
+    // 为对象场景一个全局引用，主要用于在执行本地方法后防止被回收
     JNI_OBJECT(*NewGlobalRef)
     (JNIEnv *env, JNI_OBJECT lobj);
+    // Deletes the global reference pointed to by globalRef.
+    // 删除一个全局引用
     void (*DeleteGlobalRef)(JNIEnv *env, JNI_OBJECT gref);
+    // Deletes the local reference pointed to by localRef.
+    // 删除本地引用
     void (*DeleteLocalRef)(JNIEnv *env, JNI_OBJECT obj);
+    // 判断两个引用指向的Java对象是否相同
+    // Tests whether two references refer to the same Java object
     JNI_BOOLEAN(*IsSameObject)
     (JNIEnv *env, JNI_OBJECT obj1, JNI_OBJECT obj2);
+    // Creates a new local reference that refers to the same object as ref
+    // 为当前引用创建一个本地方法栈引用
     JNI_OBJECT(*NewLocalRef)
     (JNIEnv *env, JNI_OBJECT ref);
+    // Ensures that at least a given number of local references can be created in the current thread
+    // 检查当前线程是否支持创建这么多个本地引用
     JNI_INT(*EnsureLocalCapacity)
     (JNIEnv *env, JNI_INT capacity);
 
+    // Allocates a new Java object without invoking any of the constructors for the object.
+    // 为一个Java对象分配内存（没调用它的构造器）
     JNI_OBJECT(*AllocObject)
     (JNIEnv *env, JNI_CLASS clazz);
+    // Constructs a new Java object
+    // 创建一个Java对象并调用其构造函数，3种传递构造参数的方式
     JNI_OBJECT(*NewObject)
     (JNIEnv *env, JNI_CLASS clazz, JNI_METHOD_ID methodID, ...);
     JNI_OBJECT(*NewObjectV)
@@ -124,14 +164,21 @@ typedef const struct JNINativeInterface
     JNI_OBJECT(*NewObjectA)
     (JNIEnv *env, JNI_CLASS clazz, JNI_METHOD_ID methodID, JNI_VALUE *args);
 
+    // Returns the class of an object
+    // 获取一个对象的class
     JNI_CLASS(*GetObjectClass)
     (JNIEnv *env, JNI_OBJECT obj);
+    // Tests whether an object is an instance of a class.
+    // 判断一个对象是不是某个class实例
     JNI_BOOLEAN(*IsInstanceOf)
     (JNIEnv *env, JNI_OBJECT obj, JNI_CLASS clazz);
 
+    // Returns the method ID for an instance (nonstatic) method of a class or interface
+    // 获取成员函数ID，可以是继承来的方法
     JNI_METHOD_ID(*GetMethodID)
     (JNIEnv *env, JNI_CLASS clazz, char *name, char *sig);
 
+    // Call<type>Method Routines, Call<type>MethodA Routines, Call<type>MethodV Routines
     JNI_OBJECT(*CallObjectMethod)
     (JNIEnv *env, JNI_OBJECT obj, JNI_METHOD_ID methodID, ...);
     JNI_OBJECT(*CallObjectMethodV)
@@ -286,9 +333,12 @@ typedef const struct JNINativeInterface
     void (*CallNonvirtualVoidMethodA)(JNIEnv *env, JNI_OBJECT obj, JNI_CLASS clazz, JNI_METHOD_ID methodID,
                                       JNI_VALUE *args);
 
+    // Returns the field ID for an instance (nonstatic) field of a class.
+    // 获取成员属性ID
     JNI_FIELD_ID(*GetFieldID)
     (JNIEnv *env, JNI_CLASS clazz, char *name, char *sig);
 
+    // Get<type>Field Routines
     JNI_OBJECT(*GetObjectField)
     (JNIEnv *env, JNI_OBJECT obj, JNI_FIELD_ID fieldID);
     JNI_BOOLEAN(*GetBooleanField)
@@ -499,6 +549,7 @@ typedef const struct JNINativeInterface
     JNI_INT(*RegisterNatives)
     (JNIEnv *env, JNI_CLASS clazz, JNINativeMethod *methods,
      JNI_INT nMethods);
+    // 去除native方法
     JNI_INT(*UnregisterNatives)
     (JNIEnv *env, JNI_CLASS clazz);
 

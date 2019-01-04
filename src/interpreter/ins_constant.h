@@ -3,6 +3,7 @@
 
 #include "runtime/class.h"
 #include "runtime/thread.h"
+#include "runtime/rcp.h"
 #include "interpreter/bytecode_stream.h"
 
 // 常量
@@ -60,25 +61,124 @@ void insm_4(Frame *frame, ByteCodeStream *stream)
 void insm_5(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_2
-    pushInt(frame->operandStack, 0);
+    pushInt(frame->operandStack, 2);
 }
 void insm_6(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_3
-    pushInt(frame->operandStack, 0);
+    pushInt(frame->operandStack, 3);
 }
+
 void insm_7(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_4
-    pushInt(frame->operandStack, 0);
+    pushInt(frame->operandStack, 4);
 }
 
 void insm_8(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_5
-    pushInt(frame->operandStack, 0);
+    pushInt(frame->operandStack, 5);
 }
 
+void insm_9(Frame *frame, ByteCodeStream *stream)
+{
+    // LCONST_0
+    pushLong(frame->operandStack, 0);
+}
 
+void insm_10(Frame *frame, ByteCodeStream *stream)
+{
+    // LCONST_1
+    pushLong(frame->operandStack, 1);
+}
+
+void insm_11(Frame *frame, ByteCodeStream *stream)
+{
+    // FCONST_0
+    pushFloat(frame->operandStack, 0);
+}
+
+void insm_12(Frame *frame, ByteCodeStream *stream)
+{
+    // FCONST_1
+    pushFloat(frame->operandStack, 1);
+}
+
+void insm_13(Frame *frame, ByteCodeStream *stream)
+{
+    // FCONST_2
+    pushFloat(frame->operandStack, 2);
+}
+
+void insm_14(Frame *frame, ByteCodeStream *stream)
+{
+    // DCONST_0
+    pushDouble(frame->operandStack, 0);
+}
+
+void insm_15(Frame *frame, ByteCodeStream *stream)
+{
+    // DCONST_1
+    pushDouble(frame->operandStack, 1);
+}
+
+void insm_16(Frame *frame, ByteCodeStream *stream)
+{
+    // BIPUSH
+    int x = nextInt8(stream);
+    pushDouble(frame->operandStack, x);
+    frame->nextPC = stream->pc;
+}
+
+void insm_17(Frame *frame, ByteCodeStream *stream)
+{
+    // SIPUSH
+    int x = nextInt16(stream);
+    pushDouble(frame->operandStack, x);
+    frame->nextPC = stream->pc;
+}
+
+void insm_18(Frame *frame, ByteCodeStream *stream)
+{
+    // LDC
+    uint8_t index = nextUint8(stream);
+    RCP *rcp = frame->method->clazz->constantPool;
+    RCPInfo *rcpInfo = getRCPInfo(rcp, (uint32_t)index);
+
+    if (rcpInfo->type == RCP_CONSTANT_Integer)
+    {
+        pushInt(frame->operandStack, *(int32_t *)rcpInfo->data);
+    }
+    else if (rcpInfo->type == RCP_CONSTANT_Long)
+    {
+        pushLong(frame->operandStack, *(int64_t *)rcpInfo->data);
+    }
+    else if (rcpInfo->type == RCP_CONSTANT_Float)
+    {
+        pushFloat(frame->operandStack, *(float *)rcpInfo->data);
+    }
+    else if (rcpInfo->type == RCP_CONSTANT_Double)
+    {
+        pushFloat(frame->operandStack, *(double *)rcpInfo->data);
+    }
+    else
+    {
+        // TODO
+    }
+    frame->nextPC = stream->pc;
+}
+
+void insm_19(Frame *frame, ByteCodeStream *stream)
+{
+    // LDC_W
+    // TODO
+}
+
+void insm_20(Frame *frame, ByteCodeStream *stream)
+{
+    // LDC2_W
+    // TODO
+}
 
 #endif

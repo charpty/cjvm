@@ -15,6 +15,6 @@ typedef struct BC_IPT
 } BC_IPT;
 
 BC_IPT *buildByteCodeInterpreter();
-int execute(JThread *thread, Method *method);
+int execute(BC_IPT *bcIpt, JThread *thread, Method *method);
 
 #endif

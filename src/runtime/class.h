@@ -6,6 +6,7 @@
 
 typedef struct Field
 {
+    struct IKlass* clazz;
     uint16_t accessFlags;
     char *name;
     char *descriptor;
@@ -23,6 +24,7 @@ typedef struct Fields
 
 typedef struct Method
 {
+    struct IKlass* clazz;
     uint16_t accessFlags;
     char *name;
     char *descriptor;

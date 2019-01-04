@@ -8,13 +8,12 @@ BC_IPT *buildByteCodeInterpreter()
     return r;
 }
 
-int execute(JThread *thread, Method *method)
+int execute(BC_IPT *bcIpt, JThread *thread, Method *method)
 {
     Frame *frame = thread->createFrame(thread, method);
     pushFrame(thread, frame);
     ByteCodeStream *stream = (ByteCodeStream *)malloc(sizeof(ByteCodeStream));
     Frame *current;
-    BC_IPT *bcIpt = buildByteCodeInterpreter();
     while ((current = currentFrame(thread)) != NULL)
     {
         thread->pc = frame->nextPC;

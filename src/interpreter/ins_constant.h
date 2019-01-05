@@ -4,7 +4,9 @@
 #include "runtime/class.h"
 #include "runtime/thread.h"
 #include "runtime/rcp.h"
+#include "runtime/oop.h"
 #include "interpreter/bytecode_stream.h"
+#include "interpreter/bytecode_interpreter.h"
 
 // 常量
 // NOP 0         0x00 什么都不做
@@ -32,111 +34,127 @@
 void insm_0(Frame *frame, ByteCodeStream *stream)
 {
     // NOP
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_1(Frame *frame, ByteCodeStream *stream)
 {
     // ACONST_NULL
     pushRef(frame->operandStack, NULL);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_2(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_M1
     pushInt(frame->operandStack, -1);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_3(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_0
     pushInt(frame->operandStack, 0);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_4(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST1
     pushInt(frame->operandStack, 1);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_5(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_2
     pushInt(frame->operandStack, 2);
+    UPDATE_PC_AND_CONTINUE
 }
 void insm_6(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_3
     pushInt(frame->operandStack, 3);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_7(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_4
     pushInt(frame->operandStack, 4);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_8(Frame *frame, ByteCodeStream *stream)
 {
     // ICONST_5
     pushInt(frame->operandStack, 5);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_9(Frame *frame, ByteCodeStream *stream)
 {
     // LCONST_0
     pushLong(frame->operandStack, 0);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_10(Frame *frame, ByteCodeStream *stream)
 {
     // LCONST_1
     pushLong(frame->operandStack, 1);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_11(Frame *frame, ByteCodeStream *stream)
 {
     // FCONST_0
     pushFloat(frame->operandStack, 0);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_12(Frame *frame, ByteCodeStream *stream)
 {
     // FCONST_1
     pushFloat(frame->operandStack, 1);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_13(Frame *frame, ByteCodeStream *stream)
 {
     // FCONST_2
     pushFloat(frame->operandStack, 2);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_14(Frame *frame, ByteCodeStream *stream)
 {
     // DCONST_0
     pushDouble(frame->operandStack, 0);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_15(Frame *frame, ByteCodeStream *stream)
 {
     // DCONST_1
     pushDouble(frame->operandStack, 1);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_16(Frame *frame, ByteCodeStream *stream)
 {
     // BIPUSH
-    int x = nextInt8(stream);
-    pushDouble(frame->operandStack, x);
-    frame->nextPC = stream->pc;
+    int32_t x = (int32_t)nextInt8(stream);
+    pushInt(frame->operandStack, x);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_17(Frame *frame, ByteCodeStream *stream)
 {
     // SIPUSH
-    int x = nextInt16(stream);
-    pushDouble(frame->operandStack, x);
-    frame->nextPC = stream->pc;
+    int32_t x = （int32_t）nextInt16(stream);
+    pushInt(frame->operandStack, x);
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_18(Frame *frame, ByteCodeStream *stream)
@@ -146,27 +164,30 @@ void insm_18(Frame *frame, ByteCodeStream *stream)
     RCP *rcp = frame->method->clazz->constantPool;
     RCPInfo *rcpInfo = getRCPInfo(rcp, (uint32_t)index);
 
-    if (rcpInfo->type == RCP_CONSTANT_Integer)
+    if (rcpInfo->type == CONSTANT_Integer)
     {
         pushInt(frame->operandStack, *(int32_t *)rcpInfo->data);
     }
-    else if (rcpInfo->type == RCP_CONSTANT_Long)
-    {
-        pushLong(frame->operandStack, *(int64_t *)rcpInfo->data);
-    }
-    else if (rcpInfo->type == RCP_CONSTANT_Float)
+    else if (rcpInfo->type == CONSTANT_Float)
     {
         pushFloat(frame->operandStack, *(float *)rcpInfo->data);
     }
-    else if (rcpInfo->type == RCP_CONSTANT_Double)
+    else if (rcpInfo->type == CONSTANT_String)
     {
-        pushFloat(frame->operandStack, *(double *)rcpInfo->data);
+        InstanceOOP *oop = resloveStringReference(frame->method->clazz, (char *)rcpInfo->data);
+        pushRef(frame->operandStack, oop);
+    }
+    else if (rcpInfo->type == CONSTANT_Class)
+    {
+        IMKlass *imkclass = resloveClassReference(frame->method->clazz, (char *)rcpInfo->data);
+        pushRef(frame->operandStack, imkclass);
     }
     else
     {
+        // Method Type | Method Handler
         // TODO
     }
-    frame->nextPC = stream->pc;
+    UPDATE_PC_AND_CONTINUE
 }
 
 void insm_19(Frame *frame, ByteCodeStream *stream)

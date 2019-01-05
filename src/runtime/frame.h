@@ -50,8 +50,8 @@ void setLong(struct LocalVars *vars, uint32_t index, int64_t value);
 int64_t getLong(LocalVars *vars, uint32_t index);
 void setFloat(struct LocalVars *vars, uint32_t index, float value);
 float getFloat(struct LocalVars *vars, uint32_t index);
-void setDobule(struct LocalVars *vars, uint32_t index, double value);
-double getDobule(struct LocalVars *vars, uint32_t index);
+void setDouble(struct LocalVars *vars, uint32_t index, double value);
+double getDouble(struct LocalVars *vars, uint32_t index);
 
 void pushRef(struct OperandStack *stack, void *ref);
 void *popRef(struct OperandStack *stack);

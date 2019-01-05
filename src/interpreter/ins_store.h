@@ -1,6 +1,13 @@
 #ifndef MOON_INS_STORE_H
 #define MOON_INS_STORE_H
 
+#include "runtime/class.h"
+#include "runtime/thread.h"
+#include "runtime/rcp.h"
+#include "runtime/oop.h"
+#include "interpreter/bytecode_stream.h"
+#include "interpreter/bytecode_interpreter.h"
+
 // 存储
 // ISTORE 54   0x36 将栈顶int型数值存入指定局部变量
 // LSTORE 55   0x37 将栈顶long型数值存入指定局部变量
@@ -35,4 +42,12 @@
 // BASTORE 84  0x54 将栈顶boolean或byte型数值存入指定数组的指定索引位置
 // CASTORE 85  0x55 将栈顶char型数值存入指定数组的指定索引位置
 // SASTORE 86  0x56 将栈顶short型数值存入指定数组的指定索引位置
+
+void insm_56(Frame *frame, ByteCodeStream *stream)
+{
+    // FSTORE
+    setFloat(frame->localVars, nextInt8(stream), popFloat(frame->operandStack));
+    UPDATE_PC_AND_CONTINUE
+}
+
 #endif

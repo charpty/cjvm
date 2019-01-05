@@ -6,7 +6,7 @@
 
 typedef struct Field
 {
-    struct IKlass* clazz;
+    struct IKlass *clazz;
     uint16_t accessFlags;
     char *name;
     char *descriptor;
@@ -24,7 +24,7 @@ typedef struct Fields
 
 typedef struct Method
 {
-    struct IKlass* clazz;
+    struct IKlass *clazz;
     uint16_t accessFlags;
     char *name;
     char *descriptor;
@@ -61,6 +61,12 @@ typedef struct IKlass
     uint32_t instanceSlotCount;
     uint32_t staticSlotCount;
 } IKlass;
+
+// instanceMirroClass => java.lang.Class
+typedef struct IMKlass
+{
+    struct IKlass *clazz;
+} IMKlass;
 
 /* acessflags */
 int8_t isPublic(IKlass *clazz);

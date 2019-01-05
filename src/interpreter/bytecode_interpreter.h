@@ -7,6 +7,9 @@
 
 #define INS_METHOD(OP) insm_##OP
 #define REGISTER_INS_METHOD(r, op) r->call[op] = INS_METHOD(op)
+
+#define UPDATE_PC_AND_CONTINUE frame->nextPC = stream->pc;
+
 // byte code interpreter
 typedef struct BC_IPT
 {

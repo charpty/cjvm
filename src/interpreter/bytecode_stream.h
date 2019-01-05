@@ -13,7 +13,9 @@ static uint8_t nextUint8(ByteCodeStream *s)
 
 static int8_t nextInt8(ByteCodeStream *s)
 {
-    return s->code[s->pc++];
+    int8_t x = *((int8_t *)s->code);
+    s->pc++;
+    return x;
 }
 
 static uint16_t nextUint16(ByteCodeStream *s)

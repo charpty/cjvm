@@ -2,21 +2,7 @@
 #define MOON_RCP_H
 
 #include "classfile/constant_pool.h"
-
-#define RCP_CONSTANT_Class 7
-#define RCP_CONSTANT_Fieldref 9
-#define RCP_CONSTANT_Methodref 10
-#define RCP_CONSTANT_InterfaceMethodref 11
-#define RCP_CONSTANT_String 8
-#define RCP_CONSTANT_Integer 3
-#define RCP_CONSTANT_Float 4
-#define RCP_CONSTANT_Long 5
-#define RCP_CONSTANT_Double 6
-#define RCP_CONSTANT_NameAndType 12
-#define RCP_CONSTANT_Utf8 1
-#define RCP_CONSTANT_MethodHandle 15
-#define RCP_CONSTANT_MethodType 16
-#define RCP_CONSTANT_InvokeDynamic 18
+#include "runtime/class.h"
 
 // https://docs.oracle.com/javase/specs/jvms/se11/html/jvms-5.html
 // 在类加载时进行解析
@@ -61,6 +47,16 @@ struct RCP *buildConstantPool(struct CP *cp)
 struct RCPInfo *getRCPInfo(struct RCP *rcp, uint32_t index)
 {
     return rcp->infos[index];
+}
+
+struct InstanceOOP *resloveStringReference(IKlass *clazz, char *str)
+{
+    return NULL;
+}
+
+struct IMKlass *resloveClassReference(IKlass *clazz, char *str)
+{
+    return NULL;
 }
 
 #endif

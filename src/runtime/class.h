@@ -4,6 +4,16 @@
 #include <stdlib.h>
 #include "rcp.h"
 
+typedef union Slot {
+    int32_t num;
+    void *ref;
+} Slot;
+
+typedef union Slots {
+    uint32_t num;
+    Slot **vars;
+} Slots;
+
 typedef struct Field
 {
     struct IKlass *clazz;
@@ -69,19 +79,43 @@ typedef struct IMKlass
 } IMKlass;
 
 /* acessflags */
-int8_t isPublic(IKlass *clazz);
-int8_t isFinal(IKlass *clazz);
-int8_t isSuper(IKlass *clazz);
-int8_t isInterface(IKlass *clazz);
-int8_t isProtected(IKlass *clazz);
-int8_t isAbstract(IKlass *clazz);
-int8_t isStatic(IKlass *clazz);
-int8_t isSynthetic(IKlass *clazz);
-int8_t isAnnotation(IKlass *clazz);
-int8_t isEnum(IKlass *clazz);
+int8_t isClassPublic(IKlass *clazz);
+int8_t isClassFinal(IKlass *clazz);
+int8_t isClassSuper(IKlass *clazz);
+int8_t isClassInterface(IKlass *clazz);
+int8_t isClassProtected(IKlass *clazz);
+int8_t isClassAbstract(IKlass *clazz);
+int8_t isClassStatic(IKlass *clazz);
+int8_t isClassSynthetic(IKlass *clazz);
+int8_t isClassAnnotation(IKlass *clazz);
+int8_t isClassEnum(IKlass *clazz);
+int8_t isClassInit(IKlass *clazz);
 
-char *getName(IKlass *clazz);
-char *getField(IKlass *clazz, char *name, char *descriptor, uint8_t isStatic);
-char *getMethod(IKlass *clazz, char *name, char *descriptor, uint8_t isStatic);
+int8_t isMethodFinal(Method *method);
+int8_t isMethodProtected(Method *method);
+int8_t isMethodAbstract(Method *method);
+int8_t isMethodStatic(Method *method);
+
+void initClass(IKlass *clazz);
+char *getClassName(IKlass *clazz);
+char *getClassField(IKlass *clazz, char *name, char *descriptor, uint8_t isStatic);
+char *getClassMethod(IKlass *clazz, char *name, char *descriptor, uint8_t isStatic);
+IMKlass *getInstaceMirroClass(Klass *clazz);
+InstanceOOP *newObject(IKlass *clazz);
+
+Slots *getStaticVars(IKlass *clazz);
+
+void setSlotRef(Slots *slots, uint32_t index, void *ref);
+void *getSlotRef(Slots *slots, uint32_t index);
+void setSlotInt(Slots *slots, uint32_t index, int32_t value);
+int32_t getSlotInt(Slots *slots, uint32_t index);
+void setSlotLong(Slots *slots, uint32_t index, int64_t value);
+int64_t getSlotLong(Slots *slots, uint32_t index);
+void setSlotFloat(Slots *slots, uint32_t index, float value);
+float getSlotFloat(Slots *slots, uint32_t index);
+void setSlotDouble(Slots *slots, uint32_t index, double value);
+double getSlotDouble(Slots *slots, uint32_t index);
+
+Method *lookupMethodInClass(IKlass *clazz, Method *method);
 
 #endif

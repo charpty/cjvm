@@ -28,5 +28,5 @@ struct JThread *createThread();
 
 void pushFrame(struct JThread *thread, Frame *frame);
 struct Frame *popFrame(struct JThread *thread);
-struct Frame *currentFrame(struct JThread *thread);
+struct Frame *topFrame(struct JThread *thread);
 #endif

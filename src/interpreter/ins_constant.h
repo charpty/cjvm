@@ -179,8 +179,8 @@ void insm_18(Frame *frame, ByteCodeStream *stream)
     }
     else if (rcpInfo->type == CONSTANT_Class)
     {
-        IMKlass *imkclass = resloveClassReference(frame->method->clazz, (char *)rcpInfo->data);
-        pushRef(frame->operandStack, imkclass);
+        IKlass *clazz = resloveClassReference(frame->method->clazz, (char *)rcpInfo->data);
+        pushRef(frame->operandStack, getInstaceMirroClass(clazz));
     }
     else
     {

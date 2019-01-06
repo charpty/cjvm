@@ -9,7 +9,7 @@
 typedef struct ClassRef
 {
     char *classname;
-} SymbolRef;
+} ClassRef;
 
 typedef struct MemberRef
 {
@@ -49,12 +49,22 @@ struct RCPInfo *getRCPInfo(struct RCP *rcp, uint32_t index)
     return rcp->infos[index];
 }
 
-struct InstanceOOP *resloveStringReference(IKlass *clazz, char *str)
+struct InstanceOOP *resloveStringReference(struct IKlass *clazz, char *str)
 {
     return NULL;
 }
 
-struct IMKlass *resloveClassReference(IKlass *clazz, char *str)
+struct IKlass *resloveClassReference(struct IKlass *clazz, char *str)
+{
+    return NULL;
+}
+
+struct Field *resloveFieldReference(struct MemberRef *ref)
+{
+    return NULL;
+}
+
+struct Method *resloveMethodReference(struct MemberRef *ref)
 {
     return NULL;
 }

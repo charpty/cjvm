@@ -2,11 +2,7 @@
 #define MOON_FRAME_H
 
 #include <stdlib.h>
-
-typedef union Slot {
-    int32_t num;
-    void *ref;
-} Slot;
+#include "runtime/class.h"
 
 typedef struct LocalVars
 {
@@ -32,7 +28,7 @@ typedef struct Frame
     // 操作数栈
     OperandStack *operandStack;
     // 所属线程
-    struct Thread *thread;
+    struct JThread *thread;
     // 当前帧所在方法
     struct Method *method;
     // 下一个执行指令位置
@@ -68,5 +64,7 @@ void pushFloat(struct OperandStack *stack, float value);
 float popFloat(struct OperandStack *stack);
 void pushDouble(struct OperandStack *stack, double value);
 double popDouble(struct OperandStack *stack);
+
+void *getRefFromTop(struct OperandStack *stack, int32_t index);
 
 #endif

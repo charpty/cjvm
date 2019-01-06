@@ -1,6 +1,13 @@
 #ifndef MOON_INS_CONTROL_H
 #define MOON_INS_CONTROL_H
 
+#include "runtime/class.h"
+#include "runtime/thread.h"
+#include "runtime/rcp.h"
+#include "runtime/oop.h"
+#include "interpreter/bytecode_stream.h"
+#include "interpreter/bytecode_interpreter.h"
+
 // 控制
 // GOTO 167         0xa7 无条件跳转
 // JSR 168          0xa8 跳转至指定16位offset位置，并将jsr下一条指令地址压入栈顶
@@ -13,5 +20,84 @@
 // DRETURN 175      0xaf 从当前方法返回double
 // ARETURN 176      0xb0 从当前方法返回对象引用
 // RETURN 177       0xb1 从当前方法返回void
+
+void insm_167(Frame *frame, ByteCodeStream *stream)
+{
+    // GOTO
+    int32_t offset = (int32_t)nextInt16(stream);
+    frame->nextPC = frame->thread->pc + offset;
+}
+
+// func (self *TABLE_SWITCH) FetchOperands(reader *base.BytecodeReader) {
+// 	reader.SkipPadding()
+// 	self.defaultOffset = reader.ReadInt32()
+// 	self.low = reader.ReadInt32()
+// 	self.high = reader.ReadInt32()
+// 	jumpOffsetsCount := self.high - self.low + 1
+// 	self.jumpOffsets = reader.ReadInt32s(jumpOffsetsCount)
+// }
+
+// func (self *TABLE_SWITCH) Execute(frame *rtda.Frame) {
+// 	index := frame.OperandStack().PopInt()
+
+// 	var offset int
+// 	if index >= self.low && index <= self.high {
+// 		offset = int(self.jumpOffsets[index-self.low])
+// 	} else {
+// 		offset = int(self.defaultOffset)
+// 	}
+
+// 	base.Branch(frame, offset)
+// }
+
+void insm_170(Frame *frame, ByteCodeStream *stream)
+{
+    skipPadding(stream);
+    // TABLESWITCH
+    int32_t defaultOffset = nextInt32(stream);
+    int32_t low = nextInt32(stream);
+    int32_t high = nextInt32(stream);
+    int32_t offsetCount = high - low + 1;
+    int32_t *offsets = nextInt32s(stream, offsetCount);
+    int32_t index = popInt(frame->operandStack);
+    int32_t offset;
+    if (index >= low && index <= high)
+    {
+        offset = offsets[index - low];
+    }
+    else
+    {
+        offset = defaultOffset;
+    }
+    frame->nextPC = frame->thread->pc + offset;
+}
+
+void insm_171(Frame *frame, ByteCodeStream *stream)
+{
+    // LOOKUPSWITCH
+    int32_t key = popInt(frame->operandStack);
+    int32_t defaultOffset = nextInt32(stream);
+    int32_t offsetCount = nextInt32(stream);
+    int32_t *offsets = nextInt32s(stream, offsetCount);
+    for (int i = 0; i < offsetCount; i = i + 2)
+    {
+        if (offsets[i] == key)
+        {
+            int32_t offset = offsets[i + 1];
+            frame->nextPC = frame->thread->pc + offset;
+            break;
+        }
+    }
+}
+
+void insm_172(Frame *frame, ByteCodeStream *stream)
+{
+    // IRETURN
+    JThread *thread = frame->thread;
+    Frame *currentFrame = popFrame(thread);
+    Frame *invokerFrame = topFrame(thread);
+    pushInt(invokerFrame->operandStack, popInt(currentFrame->operandStack));
+    UPDATE_PC_AND_CONTINUE
+}
 
 #endif

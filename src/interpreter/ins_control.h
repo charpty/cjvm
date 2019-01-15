@@ -52,8 +52,8 @@ void insm_167(Frame *frame, ByteCodeStream *stream)
 
 void insm_170(Frame *frame, ByteCodeStream *stream)
 {
-    skipPadding(stream);
     // TABLESWITCH
+    skipPadding(stream);
     int32_t defaultOffset = nextInt32(stream);
     int32_t low = nextInt32(stream);
     int32_t high = nextInt32(stream);
@@ -75,6 +75,7 @@ void insm_170(Frame *frame, ByteCodeStream *stream)
 void insm_171(Frame *frame, ByteCodeStream *stream)
 {
     // LOOKUPSWITCH
+    skipPadding(stream);
     int32_t key = popInt(frame->operandStack);
     int32_t defaultOffset = nextInt32(stream);
     int32_t offsetCount = nextInt32(stream);

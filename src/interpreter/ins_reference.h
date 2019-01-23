@@ -34,7 +34,7 @@ void insm_178(Frame *frame, ByteCodeStream *stream)
     int16_t filedRefIndex = nextInt16(stream);
     IKlass *clazz = frame->method->clazz;
     MemberRef *fieldRef = (MemberRef *)getRCPInfo(clazz->constantPool, filedRefIndex)->data;
-    Field *field = resloveFieldReference(fieldRef);
+    Field *field = resolveFieldReference(fieldRef);
     if (!isClassInit(field->clazz))
     {
         initClass(field->clazz);
@@ -76,7 +76,7 @@ void insm_180(Frame *frame, ByteCodeStream *stream)
     int16_t filedRefIndex = nextInt16(stream);
     IKlass *clazz = frame->method->clazz;
     MemberRef *fieldRef = (MemberRef *)getRCPInfo(clazz->constantPool, filedRefIndex)->data;
-    Field *field = resloveFieldReference(fieldRef);
+    Field *field = resolveFieldReference(fieldRef);
     if (!isClassInit(field->clazz))
     {
         initClass(field->clazz);
@@ -84,7 +84,7 @@ void insm_180(Frame *frame, ByteCodeStream *stream)
     char *descriptor = field->descriptor;
     uint32_t index = field->slotIndex;
     InstanceOOP *oop = (InstanceOOP *)popRef(frame->operandStack);
-    Slots slots = getIntanceVars(oop);
+    Slots slots = getInstanceVars(oop);
     // TODO
     UPDATE_PC_AND_CONTINUE
 }
@@ -96,7 +96,7 @@ void insm_183(Frame *frame, ByteCodeStream *stream)
     IKlass *clazz = frame->method->clazz;
     RCP *rcp = clazz->constantPool;
     MemberRef *methodRef = (MemberRef *)getRCPInfo(clazz->constantPool, methodRefIndex)->data;
-    Method *method = resloveMethodReference(methodRef);
+    Method *method = resolveMethodReference(methodRef);
 
     if (method->name == "<init>" && clazz != method->clazz)
     {
@@ -141,7 +141,7 @@ void insm_187(Frame *frame, ByteCodeStream *stream)
     int16_t index = nextInt16(stream);
     IKlass *clazz = frame->method->clazz;
     char *className = ((ClassRef *)getRCPInfo(clazz->constantPool, index)->data)->classname;
-    IKlass *refClass = resloveClassReference(clazz, className);
+    IKlass *refClass = resolveClassReference(clazz, className);
     if (!isClassInit(refClass))
     {
         initClass(refClass);

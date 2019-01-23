@@ -65,7 +65,7 @@ void testListJavaHome()
 void testDoubleFloatConvert()
 {
     double a = 1.0;
-    doubleToInt64();
+    doubleToInt64(a);
 }
 
 int main(int argc, char const *argv[])

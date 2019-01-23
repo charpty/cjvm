@@ -181,7 +181,7 @@ static char *getUtf8(CP *cp, uint16_t index)
 
 // make this C string? hate '\0'
 // use sds? miss some useful function
-static char *getClassName(CP *cp, uint16_t index)
+static char *getName(CP *cp, uint16_t index)
 {
     return getUtf8(cp, *(uint16_t *)cp->infos[index]->v1);
 }

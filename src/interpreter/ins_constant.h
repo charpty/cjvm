@@ -152,7 +152,7 @@ void insm_16(Frame *frame, ByteCodeStream *stream)
 void insm_17(Frame *frame, ByteCodeStream *stream)
 {
     // SIPUSH
-    int32_t x = （int32_t）nextInt16(stream);
+    int32_t x = nextInt16(stream);
     pushInt(frame->operandStack, x);
     UPDATE_PC_AND_CONTINUE
 }
@@ -174,13 +174,13 @@ void insm_18(Frame *frame, ByteCodeStream *stream)
     }
     else if (rcpInfo->type == CONSTANT_String)
     {
-        InstanceOOP *oop = resloveStringReference(frame->method->clazz, (char *)rcpInfo->data);
+        InstanceOOP *oop = resolveStringReference(frame->method->clazz, (char *) rcpInfo->data);
         pushRef(frame->operandStack, oop);
     }
     else if (rcpInfo->type == CONSTANT_Class)
     {
-        IKlass *clazz = resloveClassReference(frame->method->clazz, (char *)rcpInfo->data);
-        pushRef(frame->operandStack, getInstaceMirroClass(clazz));
+        IKlass *clazz = resolveClassReference(frame->method->clazz, (char *) rcpInfo->data);
+        pushRef(frame->operandStack, getInstanceMirrorClass(clazz));
     }
     else
     {

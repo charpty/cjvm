@@ -7,6 +7,6 @@ struct JThread *createThread()
     return thread;
 }
 
-void pushFrame(struct JThread *thread);
+void pushFrame(struct JThread *thread, Frame *frame);
 struct Frame *popFrame(struct JThread *thread);
 struct Frame *currentFrame(struct JThread *thread);

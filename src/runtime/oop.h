@@ -18,6 +18,9 @@ typedef struct ArrayOOP
     uint32_t length;
 } ArrayOOP;
 
-Slots getIntanceVars(InstanceOOP *object);
+Slots getInstanceVars(InstanceOOP *object);
+
+struct InstanceOOP *resolveStringReference(struct IKlass *clazz, char *str);
+
 
 #endif

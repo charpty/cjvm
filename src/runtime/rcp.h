@@ -49,24 +49,4 @@ struct RCPInfo *getRCPInfo(struct RCP *rcp, uint32_t index)
     return rcp->infos[index];
 }
 
-struct InstanceOOP *resloveStringReference(struct IKlass *clazz, char *str)
-{
-    return NULL;
-}
-
-struct IKlass *resloveClassReference(struct IKlass *clazz, char *str)
-{
-    return NULL;
-}
-
-struct Field *resloveFieldReference(struct MemberRef *ref)
-{
-    return NULL;
-}
-
-struct Method *resloveMethodReference(struct MemberRef *ref)
-{
-    return NULL;
-}
-
 #endif

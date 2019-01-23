@@ -22,7 +22,7 @@ typedef struct OperandStack
 typedef struct Frame
 {
     // 栈中桢通过链表形式连接
-    Frame *lower;
+    struct Frame *lower;
     // 本地变量表
     LocalVars *localVars;
     // 操作数栈

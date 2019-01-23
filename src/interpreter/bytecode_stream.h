@@ -1,3 +1,6 @@
+#ifndef MOON_BYTECODE_STREAM_H
+#define MOON_BYTECODE_STREAM_H
+
 #include <stdlib.h>
 
 typedef struct ByteCodeStream
@@ -55,3 +58,5 @@ static void skipPadding(ByteCodeStream *s)
         nextUint8(s);
     }
 }
+
+#endif

@@ -14,8 +14,7 @@ typedef union Slots {
     Slot **vars;
 } Slots;
 
-typedef struct Field
-{
+typedef struct Field {
     struct IKlass *clazz;
     uint16_t accessFlags;
     char *name;
@@ -26,14 +25,12 @@ typedef struct Field
     uint32_t slotIndex;
 } Field;
 
-typedef struct Fields
-{
+typedef struct Fields {
     uint32_t size;
     struct Field **fields;
 } Fields;
 
-typedef struct Method
-{
+typedef struct Method {
     struct IKlass *clazz;
     uint16_t accessFlags;
     char *name;
@@ -45,25 +42,22 @@ typedef struct Method
     char *code;
 } Method;
 
-typedef struct Methods
-{
+typedef struct Methods {
     uint32_t size;
     struct Method **methods;
 } Methods;
 
-typedef struct Interfaces
-{
+typedef struct Interfaces {
     uint32_t size;
-    struct IKlass classes;
+    void *clazzArray;
 } Interfaces;
 
-typedef struct IKlass
-{
+typedef struct IKlass {
     uint16_t accessFlags;
     char *name;
     char *superClassName;
     Interfaces *interfaces;
-    RCP *constantPool;
+    struct RCP *constantPool;
     Fields *fields;
     Methods *methods;
     struct ClassLoader *loader;
@@ -73,49 +67,81 @@ typedef struct IKlass
 } IKlass;
 
 // instanceMirroClass => java.lang.Class
-typedef struct IMKlass
-{
+typedef struct IMKlass {
     struct IKlass *clazz;
 } IMKlass;
 
 /* acessflags */
 int8_t isClassPublic(IKlass *clazz);
+
 int8_t isClassFinal(IKlass *clazz);
+
 int8_t isClassSuper(IKlass *clazz);
+
 int8_t isClassInterface(IKlass *clazz);
+
 int8_t isClassProtected(IKlass *clazz);
+
 int8_t isClassAbstract(IKlass *clazz);
+
 int8_t isClassStatic(IKlass *clazz);
+
 int8_t isClassSynthetic(IKlass *clazz);
+
 int8_t isClassAnnotation(IKlass *clazz);
+
 int8_t isClassEnum(IKlass *clazz);
+
 int8_t isClassInit(IKlass *clazz);
 
 int8_t isMethodFinal(Method *method);
+
 int8_t isMethodProtected(Method *method);
+
 int8_t isMethodAbstract(Method *method);
+
 int8_t isMethodStatic(Method *method);
 
 void initClass(IKlass *clazz);
+
 char *getClassName(IKlass *clazz);
+
 char *getClassField(IKlass *clazz, char *name, char *descriptor, uint8_t isStatic);
+
 char *getClassMethod(IKlass *clazz, char *name, char *descriptor, uint8_t isStatic);
-IMKlass *getInstaceMirroClass(Klass *clazz);
-InstanceOOP *newObject(IKlass *clazz);
+
+IMKlass *getInstanceMirrorClass(IKlass *clazz);
+
+struct InstanceOOP *newObject(IKlass *clazz);
 
 Slots *getStaticVars(IKlass *clazz);
 
 void setSlotRef(Slots *slots, uint32_t index, void *ref);
+
 void *getSlotRef(Slots *slots, uint32_t index);
+
 void setSlotInt(Slots *slots, uint32_t index, int32_t value);
+
 int32_t getSlotInt(Slots *slots, uint32_t index);
+
 void setSlotLong(Slots *slots, uint32_t index, int64_t value);
+
 int64_t getSlotLong(Slots *slots, uint32_t index);
+
 void setSlotFloat(Slots *slots, uint32_t index, float value);
+
 float getSlotFloat(Slots *slots, uint32_t index);
+
 void setSlotDouble(Slots *slots, uint32_t index, double value);
+
 double getSlotDouble(Slots *slots, uint32_t index);
 
 Method *lookupMethodInClass(IKlass *clazz, Method *method);
+
+struct IKlass *resolveClassReference(struct IKlass *clazz, char *str);
+
+struct Field *resolveFieldReference(struct MemberRef *ref);
+
+struct Method *resolveMethodReference(struct MemberRef *ref);
 
 #endif

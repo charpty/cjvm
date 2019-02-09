@@ -3,6 +3,9 @@ CMakeFiles
 cmake_install.cmake
 cTestTestfile.cmake
 CMakeCache.txt
+# Now we use CMake
+Makefile
+*.cbp
 Testing
 .idea
 .vscode

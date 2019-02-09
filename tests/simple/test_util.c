@@ -2,7 +2,7 @@
 #include <zip.h>
 #include <stdio.h>
 
-#include "../src/util/util.h"
+#include "../../src/util/util.h"
 
 void testLog()
 {

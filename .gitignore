@@ -3,6 +3,7 @@ CMakeFiles
 cmake_install.cmake
 cTestTestfile.cmake
 CMakeCache.txt
+Testing
 .idea
 .vscode
 *.log

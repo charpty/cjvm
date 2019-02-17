@@ -5,8 +5,10 @@ cTestTestfile.cmake
 CMakeCache.txt
 # Now we use CMake
 Makefile
+Makefile.dep
 *.cbp
 Testing
+*Test
 .idea
 .vscode
 *.log
@@ -14,7 +16,6 @@ Testing
 **/*.out
 **/*.dSYM
 *.gch
-Makefile.dep
 *.o
 tests/**/*.class
 # for javap -version xxx.class
